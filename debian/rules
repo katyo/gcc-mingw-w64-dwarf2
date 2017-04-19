@@ -161,6 +161,8 @@ $(unpack_stamp):
 	patch -p2 -d$(upstream_dir) < debian/patches/reproducible-sort.patch
 	patch -p1 -d$(upstream_dir) < debian/patches/bug-55930.patch
 	mkdir -p $(stampdir)
+# gcov-dump.texi is missing in some source tarballs
+	if [ ! -f $(upstream_dir)/gcc/doc/gcov-dump.texi ]; then cp $(gcc_dir)/debian/dummy.texi $(upstream_dir)/gcc/doc/gcov-dump.texi; fi
 	touch $@
 
 clean: control

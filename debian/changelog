@@ -1,3 +1,9 @@
+gcc-mingw-w64 (19.3) unstable; urgency=medium
+
+  * Copy gcov-dump.texi (Closes: #860607).
+
+ -- Stephen Kitt <skitt@debian.org>  Wed, 19 Apr 2017 11:36:36 +0200
+
 gcc-mingw-w64 (19.2) unstable; urgency=medium
 
   * Enable libatomic, using Richard Purdie's patch from
