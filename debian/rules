@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 # Build gcc-mingw-w64 using gcc-6-source.
-# Copyright © 2010-2016 Stephen Kitt <skitt@debian.org>
+# Copyright © 2010-2017 Stephen Kitt <skitt@debian.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 # Built-Using, which results in build failures
 export NO_PKG_MANGLE=1
 
-target_version := 6
+target_version := 7
 
 top_dir := $(shell pwd)
 gcc_dir := /usr/src/gcc-$(target_version)
@@ -225,18 +225,13 @@ mingw-w64-patch-stamp: $(patch_stamp)
 	# Remove the patch building libstdc++_pic.a before configuring
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/libstdc++-pic.diff
 	# Spelling fixes
-	$(call spelling,adress,address)
 	$(call spelling,Allow to,Allow one to)
-	$(call spelling,Choosen,Chosen)
+	sed -i "s/Var befor:/Var before:/g" src/gcc/tree-ssa-loop-ivopts.c
 	$(call spelling,classess,classes)
-	$(call spelling,containg,containing)
-	$(call spelling,endianess,endianness)
 	$(call spelling,eroneous,erroneous)
-	$(call spelling,informations,information)
 	$(call spelling,intial,initial)
 	$(call spelling,intrument,instrument)
-	$(call spelling,invokations,invocations)
-	$(call spelling,occured,occurred)
+	$(call spelling,mutiple,multiple)
 	$(call spelling,refrence,reference)
 	$(call spelling,Regsitered,Registered)
 	$(call spelling,splitted,split)

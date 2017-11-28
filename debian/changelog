@@ -3,6 +3,7 @@ gcc-mingw-w64 (20) UNRELEASED; urgency=medium
   * Drop the old Recommends from gcc-mingw-w64 to g++-mingw-w64,
     gfortran-mingw-w64 and gnat-mingw-w64 (thanks to Adam Borowski for
     pointing out that they were still there; closes: #875263).
+  * Build using GCC 7 (Closes: #881426).
 
  -- Stephen Kitt <skitt@debian.org>  Sun, 11 Jun 2017 18:56:35 +0200
 
