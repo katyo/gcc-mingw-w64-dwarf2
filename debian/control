@@ -2,7 +2,7 @@
 Source: gcc-mingw-w64
 Maintainer: Stephen Kitt <skitt@debian.org>
 Section: devel
-Priority: extra
+Priority: optional
 Build-Depends: autotools-dev,
 # Allow binutils-mingw-w64 2.26-3ubuntu<n>+6.6 or later,
 # or 2.26-3+6.6 or later, disallowing 2.26-3+6.5
