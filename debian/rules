@@ -25,14 +25,15 @@ export NO_PKG_MANGLE=1
 
 target_version := 7
 
+include /usr/share/dpkg/pkg-info.mk
+
 top_dir := $(shell pwd)
 gcc_dir := /usr/src/gcc-$(target_version)
 upstream_dir := $(top_dir)/src
 build_dir := $(top_dir)/build
 stampdir := $(top_dir)/stamps
 source_version := $(shell dpkg-query -W -f="\$${Version}\n" gcc-$(target_version)-source)
-our_version := $(shell dpkg-parsechangelog | sed -ne "s/^Version: \(.*\)/\1/p")
-deb_version := $(source_version)+$(our_version)
+deb_version := $(source_version)+$(DEB_VERSION)
 deb_upstream_version := $(shell echo $(deb_version) | cut -d- -f1)
 deb_upstream_nextversion := $(shell echo $(deb_upstream_version) | awk -F. "{ for (i = 1; i < NF; i++) { printf \"%d.\",\$$i; }; print (\$$NF + 1); }")
 base_version := $(shell echo $(deb_version) | sed -e 's/\([1-9]\.[0-9]\).*-.*/\1/')
@@ -113,7 +114,7 @@ LDFLAGS = $(shell $(dpkg_buildflags_host) --get LDFLAGS)
 LDFLAGS += -Wl,--as-needed
 LDFLAGS_FOR_TARGET = $(shell $(dpkg_buildflags_target) --get LDFLAGS)
 LDFLAGS_FOR_TARGET += -Wl,--as-needed
-LDFLAGS_FOR_TARGET = -Xlinker --insert-timestamp=$(shell date -d "$(shell dpkg-parsechangelog -S Date)" +%s)
+LDFLAGS_FOR_TARGET = -Xlinker --insert-timestamp=$(SOURCE_DATE_EPOCH)
 export CC CXX CFLAGS CFLAGS_FOR_TARGET CPPFLAGS CPPFLAGS_FOR_TARGET
 export CXXFLAGS CXXFLAGS_FOR_TARGET FFLAGS FFLAGS_FOR_TARGET LDFLAGS LDFLAGS_FOR_TARGET
 
