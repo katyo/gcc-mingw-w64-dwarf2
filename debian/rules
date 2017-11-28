@@ -216,6 +216,9 @@ CONFFLAGS += \
 # Enable libatomic
 CONFFLAGS += \
 	--enable-libatomic
+# Enable experimental::filesystem
+CONFFLAGS += \
+	--enable-libstdcxx-filesystem-ts=yes
 
 spelling = grep -rl "$(1)" $(upstream_dir) | xargs -r sed -i "s/$(1)/$(2)/g"
 
@@ -225,6 +228,8 @@ mingw-w64-patch: mingw-w64-patch-stamp
 mingw-w64-patch-stamp: $(patch_stamp)
 	# Remove the patch building libstdc++_pic.a before configuring
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/libstdc++-pic.diff
+	# niXman’s experimental::filesystem support
+	patch -p0 -d$(upstream_dir) < debian/patches/gcc-7-filesystem.patch
 	# Spelling fixes
 	$(call spelling,Allow to,Allow one to)
 	sed -i "s/Var befor:/Var before:/g" src/gcc/tree-ssa-loop-ivopts.c

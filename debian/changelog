@@ -7,6 +7,8 @@ gcc-mingw-w64 (20) UNRELEASED; urgency=medium
   * Switch priority from “extra” to “optional”.
   * Use pkg-info.mk instead of dpkg-parsechangelog.
   * Drop debian/watch, it’s rather pointless in this package.
+  * Apply niXman’s patch to enable experimental::filesystem support
+    (Closes: #847379).
 
  -- Stephen Kitt <skitt@debian.org>  Sun, 11 Jun 2017 18:56:35 +0200
 

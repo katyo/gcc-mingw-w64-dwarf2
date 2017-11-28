@@ -6,4 +6,5 @@ usr/lib/gcc/x86_64-w64-mingw32/7*/libstdc++-6.dll
 usr/lib/gcc/x86_64-w64-mingw32/7*/libstdc++.a
 usr/lib/gcc/x86_64-w64-mingw32/7*/libstdc++.dll.a
 usr/lib/gcc/x86_64-w64-mingw32/7*/libstdc++.dll.a-gdb.py
+usr/lib/gcc/x86_64-w64-mingw32/7*/libstdc++fs.a
 usr/lib/gcc/x86_64-w64-mingw32/7*/libsupc++.a
