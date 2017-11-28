@@ -6,6 +6,7 @@ gcc-mingw-w64 (20) UNRELEASED; urgency=medium
   * Build using GCC 7 (Closes: #881426).
   * Switch priority from “extra” to “optional”.
   * Use pkg-info.mk instead of dpkg-parsechangelog.
+  * Drop debian/watch, it’s rather pointless in this package.
 
  -- Stephen Kitt <skitt@debian.org>  Sun, 11 Jun 2017 18:56:35 +0200
 
