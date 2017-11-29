@@ -58,9 +58,7 @@ ifneq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
     INSTALL_TARGET := install-gcc
 else
 # Build the full GCC.
-    languages := c,c++,fortran,objc,obj-c++
-    debian_extra_langs := ada
-    export debian_extra_langs
+    languages := c,c++,fortran,objc,obj-c++,ada
     BUILD_TARGET :=
     INSTALL_TARGET := install install-lto-plugin
 endif
@@ -228,6 +226,14 @@ mingw-w64-patch: mingw-w64-patch-stamp
 mingw-w64-patch-stamp: $(patch_stamp)
 	# Remove the patch building libstdc++_pic.a before configuring
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/libstdc++-pic.diff
+	# Revert ADA patches which break the MinGW-w64 build
+	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-sjlj.diff
+	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-gnattools-cross.diff
+	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-libgnatvsn.diff
+	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-link-lib.diff
+	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-changes-in-autogen-output.diff
+	# Ensure s-oscons.ads gets a fixed date and time
+	patch -p1 -d$(upstream_dir) < debian/patches/reproducible-s-oscons.patch
 	# niXman’s experimental::filesystem support
 	patch -p0 -d$(upstream_dir) < debian/patches/gcc-7-filesystem.patch
 	# Spelling fixes
@@ -246,6 +252,9 @@ mingw-w64-patch-stamp: $(patch_stamp)
 	$(call spelling,wihout,without)
 	# Force /bin/sh in mkheaders
 	sed -i sX@SHELL@X/bin/shX $(upstream_dir)/fixincludes/mkheaders.in
+	# Fix the date and time of patched files
+	find . -type f -a -newermt '@$(SOURCE_DATE_EPOCH)' -print0 | \
+		xargs -0r touch --no-dereference --date='@$(SOURCE_DATE_EPOCH)'
 	touch $@
 
 configure: configure-stamp

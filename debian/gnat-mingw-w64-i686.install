@@ -1,0 +1,4 @@
+usr/bin/i686-w64-mingw32-gnat*
+usr/lib/gcc/i686-w64-mingw32/*/adainclude/*
+usr/lib/gcc/i686-w64-mingw32/*/adalib/*
+usr/lib/gcc/i686-w64-mingw32/*/gnat1
