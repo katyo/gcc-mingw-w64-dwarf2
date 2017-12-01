@@ -356,10 +356,11 @@ binary-indep: build-indep
 binary-arch: build-arch install-arch
 	dh_testdir
 	dh_testroot
-	dh_install -a --list-missing
+	dh_install -a
 	dh_installdocs -a --link-doc=gcc-mingw-w64-base
 	dh_installman -a
 	dh_installchangelogs -a $(upstream_dir)/ChangeLog
+	dh_missing -a --list-missing
 	# Strip the binaries
 ifneq (,$(findstring ada,$(languages)))
 	dh_strip -a -Xw64-mingw32/lib $(patsubst %,-Xw64-mingw32/$(base_version)-%/lib,$(threads)) $(patsubst %,-Xw64-mingw32/$(base_version)-%/adalib,$(threads))
