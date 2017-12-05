@@ -12,6 +12,7 @@ gcc-mingw-w64 (20) UNRELEASED; urgency=medium
   * Merge gnat packaging back in, now that gnat itself is produced using
     the gcc source package.
   * Use dh_missing instead of dh_install --list-missing.
+  * Standards-Version 4.1.2, no further change required.
 
  -- Stephen Kitt <skitt@debian.org>  Sun, 11 Jun 2017 18:56:35 +0200
 
