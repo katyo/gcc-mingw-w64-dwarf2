@@ -247,7 +247,7 @@ gcc-mingw-w64 (10) unstable; urgency=low
  -- Stephen Kitt <skitt@debian.org>  Sun, 24 Nov 2013 00:04:30 +0100
 
 gcc-mingw-w64 (9) unstable; urgency=low
-  
+
   * Use dpkg-vendor instead of lsb-release; thanks to Didier 'OdyX' Raboud
     for the patch (Closes: #671725).
   * Drop references to mingw-w64-dev (Closes: #726283).
