@@ -1,0 +1,10 @@
+--- src/libgcc/libgcov-driver.c.orig	2017-12-05 10:34:20.544631587 +0100
++++ src/libgcc/libgcov-driver.c	2017-12-05 10:35:02.329800107 +0100
+@@ -30,6 +30,7 @@
+ 
+ #if defined(L_gcov)
+ void __gcov_init (struct gcov_info *p __attribute__ ((unused))) {}
++void __gcov_exit (void) {}
+ #endif
+ 
+ #else /* inhibit_libc */

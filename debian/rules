@@ -236,6 +236,8 @@ mingw-w64-patch-stamp: $(patch_stamp)
 	patch -p1 -d$(upstream_dir) < debian/patches/reproducible-s-oscons.patch
 	# niXman’s experimental::filesystem support
 	patch -p0 -d$(upstream_dir) < debian/patches/gcc-7-filesystem.patch
+	# Fix gcov linking
+	patch -p1 -d$(upstream_dir) < debian/patches/gcov.patch
 	# Spelling fixes
 	$(call spelling,Allow to,Allow one to)
 	sed -i "s/Var befor:/Var before:/g" src/gcc/tree-ssa-loop-ivopts.c
