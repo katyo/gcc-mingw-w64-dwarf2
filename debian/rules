@@ -187,6 +187,9 @@ CONFFLAGS = \
 	--libdir=/$(PF)/$(libdir) \
 	--enable-libstdcxx-time=yes \
 	--with-tune=generic
+# Tell GCC where the headers are (this enables gcov)
+CONFFLAGS += \
+	--with-headers=/usr/$$target/include
 # MinGW-w64 flags
 # version-specific-runtime-libs puts target-specific libraries in
 # /usr/lib/gcc rather than /usr/$(target)
