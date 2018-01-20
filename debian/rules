@@ -153,12 +153,11 @@ $(unpack_stamp):
 	tar xf $(gcc_dir)/gcc-*.tar.*
 	rm -rf $(upstream_dir)
 	mv gcc-* $(upstream_dir)
-	# Apply our extra patches here...
-	# We can't use a separate target for this because the patches
-	# need to be applied before gcc-6-source's
-	patch -p0 < debian/patches/disable-multilib.patch
-	patch -p2 -d$(upstream_dir) < debian/patches/reproducible-sort.patch
-	patch -p1 -d$(upstream_dir) < debian/patches/bug-55930.patch
+# Apply our first series of patches (those which need to be applied
+# before gcc-?-source’s)
+	QUILT_SERIES=debian/patches/series1 QUILT_PATCHES=debian/patches quilt push -a
+# Drop the quilt cache so we can process other series
+	rm -rf .pc
 	mkdir -p $(stampdir)
 # gcov-dump.texi is missing in some source tarballs
 	if [ ! -f $(upstream_dir)/gcc/doc/gcov-dump.texi ]; then cp $(gcc_dir)/debian/dummy.texi $(upstream_dir)/gcc/doc/gcov-dump.texi; fi
@@ -224,24 +223,21 @@ CONFFLAGS += \
 spelling = grep -rl "$(1)" $(upstream_dir) | xargs -r sed -i "s/$(1)/$(2)/g"
 
 # Patches applied or unapplied after the upstream sources have been
-# unpacked and patched using the gcc-6-source package's patches
+# unpacked and patched using the gcc-?-source package's patches
 mingw-w64-patch: mingw-w64-patch-stamp
 mingw-w64-patch-stamp: $(patch_stamp)
-	# Remove the patch building libstdc++_pic.a before configuring
+# Remove the patch building libstdc++_pic.a before configuring
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/libstdc++-pic.diff
-	# Revert ADA patches which break the MinGW-w64 build
+# Revert ADA patches which break the MinGW-w64 build
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-sjlj.diff
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-gnattools-cross.diff
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-libgnatvsn.diff
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-link-lib.diff
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-changes-in-autogen-output.diff
-	# Ensure s-oscons.ads gets a fixed date and time
-	patch -p1 -d$(upstream_dir) < debian/patches/reproducible-s-oscons.patch
-	# niXman’s experimental::filesystem support
-	patch -p0 -d$(upstream_dir) < debian/patches/gcc-7-filesystem.patch
-	# Fix gcov linking
-	patch -p1 -d$(upstream_dir) < debian/patches/gcov.patch
-	# Spelling fixes
+# Apply our second series of patches
+	rm -rf .pc
+	QUILT_SERIES=debian/patches/series2 QUILT_PATCHES=debian/patches quilt push -a
+# Spelling fixes
 	$(call spelling,Allow to,Allow one to)
 	sed -i "s/Var befor:/Var before:/g" src/gcc/tree-ssa-loop-ivopts.c
 	$(call spelling,classess,classes)
@@ -255,9 +251,9 @@ mingw-w64-patch-stamp: $(patch_stamp)
 	$(call spelling,Staticly,Statically)
 	$(call spelling,temorary,temporary)
 	$(call spelling,wihout,without)
-	# Force /bin/sh in mkheaders
+# Force /bin/sh in mkheaders
 	sed -i sX@SHELL@X/bin/shX $(upstream_dir)/fixincludes/mkheaders.in
-	# Fix the date and time of patched files
+# Fix the date and time of patched files
 	find . -type f -a -newermt '@$(SOURCE_DATE_EPOCH)' -print0 | \
 		xargs -0r touch --no-dereference --date='@$(SOURCE_DATE_EPOCH)'
 	touch $@

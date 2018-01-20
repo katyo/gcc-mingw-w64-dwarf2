@@ -2,6 +2,8 @@ gcc-mingw-w64 (20.1) UNRELEASED; urgency=medium
 
   * Specify the header location; as a side-effect, this re-enables gcov
     properly (closes: #854368).
+  * Refresh all patches for gcc-7-source 7.2.0-19 (closes: #887762);
+    switch to quilt to apply the patches, and document its use.
 
  -- Stephen Kitt <skitt@debian.org>  Thu, 07 Dec 2017 20:44:43 +0100
 

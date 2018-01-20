@@ -1,3 +1,6 @@
+Description: Drop /mingw from the include path
+Author: Stephen Kitt <skitt@debian.org>
+
 diff -urN src.old/gcc/config/i386/mingw32.h src/gcc/config/i386/mingw32.h
 --- src.old/gcc/config/i386/mingw32.h	2010-04-27 22:14:19.000000000 +0200
 +++ src/gcc/config/i386/mingw32.h	2010-10-18 23:17:13.349755865 +0200

@@ -1,10 +1,13 @@
---- src/gcc/ada/gcc-interface/Makefile.in.orig	2017-11-29 19:56:05.339695644 +0100
-+++ src/gcc/ada/gcc-interface/Makefile.in	2017-11-29 19:58:29.266239263 +0100
-@@ -2820,6 +2820,7 @@
+Description: Use the epoch date for s-oscons.ads
+Author: Stephen Kitt <skitt@debian.org>
+
+--- a/src/gcc/ada/gcc-interface/Makefile.in
++++ b/src/gcc/ada/gcc-interface/Makefile.in
+@@ -2786,6 +2786,7 @@
  	    $(OSCONS_CPP) ; \
  	    $(OSCONS_EXTRACT) ; \
  	    ../bldtools/oscons/xoscons s-oscons)
 +	touch --date='@$(SOURCE_DATE_EPOCH)' $@
  
- gnatlib: ../stamp-gnatlib1-$(RTSDIR) $(RTSDIR)/s-oscons.ads
+ gnatlib: ../stamp-gnatlib1-$(RTSDIR) ../stamp-gnatlib2-$(RTSDIR) $(RTSDIR)/s-oscons.ads
  	test -f $(RTSDIR)/s-oscons.ads || exit 1
