@@ -4,3 +4,6 @@ gnat-mingw-w64-i686: binary-without-manpage
 # These aren't spelling errors
 gnat-mingw-w64-i686: spelling-error-in-binary usr/bin/i686-w64-mingw32-gnatlink-* nam name
 gnat-mingw-w64-i686: spelling-error-in-binary usr/lib/gcc/i686-w64-mingw32/*/gnat1 Nam Name
+
+# DLLs exported via Samba need to be executable (see #796223)
+gnat-mingw-w64-i686: executable-not-elf-or-script usr/lib/gcc/i686-w64-mingw32/*/*.dll
