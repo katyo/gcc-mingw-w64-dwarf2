@@ -2,6 +2,8 @@ gcc-mingw-w64 (20.2) UNRELEASED; urgency=medium
 
   * Adjust to build with gcc-7-source 7.2.0-20 (closes: #888317).
   * Update the alternatives to use gcc-7 rather than the obsolete -6.
+  * Drop versioned dependencies for build-dependencies available in
+    oldstable.
 
  -- Stephen Kitt <skitt@debian.org>  Wed, 24 Jan 2018 23:16:20 +0100
 
