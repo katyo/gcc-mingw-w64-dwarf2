@@ -474,25 +474,16 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
    stat_type st;
    if (::lstat(p.c_str(), &st))
      {
-@@ -1282,7 +1297,7 @@
-       ec.clear();
-       return false; // Nothing to do, not an error.
-     }
+@@ -1274,7 +1289,7 @@
+ bool
+ fs::remove(const path& p, error_code& ec) noexcept
+ {
 -  if (::remove(p.c_str()) == 0)
 +  if (::os_remove(p.c_str()) == 0)
      {
        ec.clear();
        return true;
-@@ -1327,7 +1342,7 @@
- 	return -1;
-     }
- 
--  if (::remove(p.c_str()) == 0)
-+  if (::os_remove(p.c_str()) == 0)
-     ++count;
-   else if (errno != ENOENT)
-     {
-@@ -1349,7 +1364,7 @@
+@@ -1336,7 +1351,7 @@
  void
  fs::rename(const path& from, const path& to, error_code& ec) noexcept
  {
@@ -501,7 +492,7 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1370,7 +1385,7 @@
+@@ -1357,7 +1372,7 @@
  #ifdef _GLIBCXX_HAVE_UNISTD_H
    if (size > static_cast<uintmax_t>(std::numeric_limits<off_t>::max()))
      ec.assign(EINVAL, std::generic_category());
@@ -510,7 +501,7 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1423,7 +1438,7 @@
+@@ -1410,7 +1425,7 @@
  {
    file_status status;
    stat_type st;
@@ -519,7 +510,7 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
      {
        int err = errno;
        ec.assign(err, std::generic_category());
-@@ -1441,13 +1456,14 @@
+@@ -1428,13 +1443,14 @@
      }
    return status;
  }
@@ -535,7 +526,7 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
      {
        int err = errno;
        ec.assign(err, std::generic_category());
-@@ -1461,7 +1477,6 @@
+@@ -1448,7 +1464,6 @@
      }
    return status;
  }
@@ -543,7 +534,7 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
  
  fs::file_status
  fs::status(const fs::path& p)
-@@ -1522,15 +1537,11 @@
+@@ -1509,15 +1524,11 @@
  
  fs::path fs::temp_directory_path(error_code& ec)
  {
@@ -563,7 +554,7 @@ Origin: https://github.com/niXman/mingw-builds/blob/master/patches/gcc/gcc-7-fil
    auto st = status(p, ec);
    if (!ec)
      {
-@@ -1543,6 +1554,5 @@
+@@ -1530,6 +1541,5 @@
  	ec = std::make_error_code(std::errc::not_a_directory);
      }
    return {};

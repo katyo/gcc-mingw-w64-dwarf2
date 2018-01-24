@@ -1,3 +1,9 @@
+gcc-mingw-w64 (20.2) UNRELEASED; urgency=medium
+
+  * Adjust to build with gcc-7-source 7.2.0-20 (closes: #888317).
+
+ -- Stephen Kitt <skitt@debian.org>  Wed, 24 Jan 2018 23:16:20 +0100
+
 gcc-mingw-w64 (20.1) unstable; urgency=medium
 
   * Specify the header location; as a side-effect, this re-enables gcov
