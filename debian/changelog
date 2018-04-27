@@ -1,3 +1,9 @@
+gcc-mingw-w64 (20.3) UNRELEASED; urgency=medium
+
+  * Migrate to Salsa.
+
+ -- Stephen Kitt <skitt@debian.org>  Fri, 27 Apr 2018 22:52:37 +0200
+
 gcc-mingw-w64 (20.2) unstable; urgency=medium
 
   * Adjust to build with gcc-7-source 7.2.0-20 (closes: #888317).
