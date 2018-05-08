@@ -1,10 +1,10 @@
-gcc-mingw-w64 (20.3) UNRELEASED; urgency=medium
+gcc-mingw-w64 (20.3) unstable; urgency=medium
 
   * Migrate to Salsa.
   * Add Lintian overrides for the non-PIE binaries.
   * Standards-Version 4.1.4, no further change required.
 
- -- Stephen Kitt <skitt@debian.org>  Fri, 27 Apr 2018 22:52:37 +0200
+ -- Stephen Kitt <skitt@debian.org>  Tue, 08 May 2018 09:42:59 +0200
 
 gcc-mingw-w64 (20.2) unstable; urgency=medium
 
