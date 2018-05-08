@@ -3,3 +3,6 @@ g++-mingw-w64-i686: binary-without-manpage
 
 # DLLs exported via Samba need to be executable (see #796223)
 g++-mingw-w64-i686: executable-not-elf-or-script usr/lib/gcc/i686-w64-mingw32/*/*.dll
+
+# PIE causes issues with pre-compiled headers
+g++-mingw-w64-i686: hardening-no-pie

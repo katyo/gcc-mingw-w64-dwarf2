@@ -7,3 +7,6 @@ gnat-mingw-w64-x86-64: spelling-error-in-binary usr/lib/gcc/x86_64-w64-mingw32/*
 
 # DLLs exported via Samba need to be executable (see #796223)
 gnat-mingw-w64-x86-64: executable-not-elf-or-script usr/lib/gcc/x86_64-w64-mingw32/*/*.dll
+
+# PIE causes issues with pre-compiled headers
+gnat-mingw-w64-x86-64: hardening-no-pie
