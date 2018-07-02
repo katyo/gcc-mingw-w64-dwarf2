@@ -1,3 +1,9 @@
+gcc-mingw-w64 (20.4) UNRELEASED; urgency=medium
+
+  * Link to the secure version of the homepage.
+
+ -- Stephen Kitt <skitt@debian.org>  Mon, 02 Jul 2018 20:20:01 +0200
+
 gcc-mingw-w64 (20.3) unstable; urgency=medium
 
   * Migrate to Salsa.

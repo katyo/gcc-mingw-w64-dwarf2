@@ -23,4 +23,4 @@ Build-Depends: autotools-dev,
 Standards-Version: 4.1.4
 Vcs-Browser: https://salsa.debian.org/mingw-w64-team/gcc-mingw-w64
 Vcs-Git: https://salsa.debian.org/mingw-w64-team/gcc-mingw-w64.git
-Homepage: http://www.gnu.org/software/gcc/
+Homepage: https://www.gnu.org/software/gcc/
