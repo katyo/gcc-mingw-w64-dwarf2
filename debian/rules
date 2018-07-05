@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Build gcc-mingw-w64 using gcc-6-source.
-# Copyright © 2010-2017 Stephen Kitt <skitt@debian.org>
+# Build gcc-mingw-w64 using gcc-8-source.
+# Copyright © 2010-2018 Stephen Kitt <skitt@debian.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 # Built-Using, which results in build failures
 export NO_PKG_MANGLE=1
 
-target_version := 7
+target_version := 8
 
 include /usr/share/dpkg/pkg-info.mk
 
@@ -217,8 +217,8 @@ CONFFLAGS += \
 CONFFLAGS += \
 	--enable-libatomic
 # Enable experimental::filesystem
-CONFFLAGS += \
-	--enable-libstdcxx-filesystem-ts=yes
+#CONFFLAGS += \
+#	--enable-libstdcxx-filesystem-ts=yes
 
 spelling = grep -rl "$(1)" $(upstream_dir) | xargs -r sed -i "s/$(1)/$(2)/g"
 
@@ -228,12 +228,6 @@ mingw-w64-patch: mingw-w64-patch-stamp
 mingw-w64-patch-stamp: $(patch_stamp)
 # Remove the patch building libstdc++_pic.a before configuring
 	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/libstdc++-pic.diff
-# Revert ADA patches which break the MinGW-w64 build
-	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-sjlj.diff
-	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-gnattools-cross.diff
-	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-libgnatvsn.diff
-	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-link-lib.diff
-	patch -R -p2 -d$(upstream_dir) < $(gcc_dir)/debian/patches/ada-changes-in-autogen-output.diff
 # Apply our second series of patches
 	rm -rf .pc
 	QUILT_SERIES=debian/patches/series2 QUILT_PATCHES=debian/patches quilt push -a
@@ -245,6 +239,7 @@ mingw-w64-patch-stamp: $(patch_stamp)
 	$(call spelling,intial,initial)
 	$(call spelling,intrument,instrument)
 	$(call spelling,mutiple,multiple)
+	$(call spelling,occurence,occurrence)
 	$(call spelling,refrence,reference)
 	$(call spelling,Regsitered,Registered)
 	$(call spelling,splitted,split)

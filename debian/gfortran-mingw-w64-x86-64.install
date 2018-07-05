@@ -1,8 +1,8 @@
 usr/bin/x86_64-w64-mingw32-gfortran*
-usr/lib/gcc/x86_64-w64-mingw32/7*/f951
-usr/lib/gcc/x86_64-w64-mingw32/7*/finclude/*
-usr/lib/gcc/x86_64-w64-mingw32/7*/libcaf_single.a
-usr/lib/gcc/x86_64-w64-mingw32/7*/libgfortran-4.dll
-usr/lib/gcc/x86_64-w64-mingw32/7*/libgfortran.a
-usr/lib/gcc/x86_64-w64-mingw32/7*/libgfortran.dll.a
-usr/lib/gcc/x86_64-w64-mingw32/7*/libgfortran.spec
+usr/lib/gcc/x86_64-w64-mingw32/8*/f951
+usr/lib/gcc/x86_64-w64-mingw32/8*/finclude/*
+usr/lib/gcc/x86_64-w64-mingw32/8*/libcaf_single.a
+usr/lib/gcc/x86_64-w64-mingw32/8*/libgfortran-5.dll
+usr/lib/gcc/x86_64-w64-mingw32/8*/libgfortran.a
+usr/lib/gcc/x86_64-w64-mingw32/8*/libgfortran.dll.a
+usr/lib/gcc/x86_64-w64-mingw32/8*/libgfortran.spec
