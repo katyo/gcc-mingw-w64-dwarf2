@@ -1,4 +1,4 @@
-gcc-mingw-w64 (21~exp1) UNRELEASED; urgency=medium
+gcc-mingw-w64 (21~exp1) experimental; urgency=medium
 
   * Link to the secure version of the homepage.
   * Build using GCC 8. This disables experimental::filesystem support for
@@ -6,7 +6,7 @@ gcc-mingw-w64 (21~exp1) UNRELEASED; urgency=medium
   * Remove the hard-coded GCC version in as many packaging files as
     possible.
 
- -- Stephen Kitt <skitt@debian.org>  Mon, 02 Jul 2018 20:20:59 +0200
+ -- Stephen Kitt <skitt@debian.org>  Wed, 18 Jul 2018 21:34:35 +0200
 
 gcc-mingw-w64 (20.3) unstable; urgency=medium
 
