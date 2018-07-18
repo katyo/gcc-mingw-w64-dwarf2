@@ -1,0 +1,9 @@
+# @@WARNING@@
+usr/bin/x86_64-w64-mingw32-gfortran*
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/f951
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/finclude/*
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libcaf_single.a
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libgfortran-5.dll
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libgfortran.a
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libgfortran.dll.a
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libgfortran.spec

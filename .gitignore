@@ -1,0 +1,12 @@
+debian/g++-mingw-w64-i686.install
+debian/g++-mingw-w64-x86-64.install
+debian/gcc-mingw-w64-i686.install
+debian/gcc-mingw-w64-i686.postinst
+debian/gcc-mingw-w64-x86-64.install
+debian/gcc-mingw-w64-x86-64.postinst
+debian/gfortran-mingw-w64-i686.install
+debian/gfortran-mingw-w64-x86-64.install
+debian/gobjc++-mingw-w64-i686.install
+debian/gobjc++-mingw-w64-x86-64.install
+debian/gobjc-mingw-w64-i686.install
+debian/gobjc-mingw-w64-x86-64.install

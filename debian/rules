@@ -83,6 +83,7 @@ control-stamp:
 	sed -i '/^Conflicts: $$/d' debian/control
 	sed -i '/^Replaces: $$/d' debian/control
 	sed -i 's/@@VERSION@@/$(target_version)/g' debian/control
+	for file in debian/*.in; do sed 'sX@@WARNING@@XThis file is generated using debian/rules control, do not editXg;s/@@VERSION@@/$(target_version)/g;s/@@BASEVERSION@@/$(base_version)/g' < $$file > $${file%%.in}; chmod --reference=$$file $${file%%.in}; done
 	touch $@
 
 targets := i686-w64-mingw32 x86_64-w64-mingw32

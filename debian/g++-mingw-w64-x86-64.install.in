@@ -1,0 +1,11 @@
+# @@WARNING@@
+usr/bin/x86_64-w64-mingw32-c++*
+usr/bin/x86_64-w64-mingw32-g++*
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/cc1plus
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/include/c++/*
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libstdc++-6.dll
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libstdc++.a
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libstdc++.dll.a
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libstdc++.dll.a-gdb.py
+#usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libstdc++fs.a
+usr/lib/gcc/x86_64-w64-mingw32/@@VERSION@@*/libsupc++.a
