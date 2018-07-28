@@ -2,7 +2,10 @@ gcc-mingw-w64 (21~exp1) experimental; urgency=medium
 
   * Link to the secure version of the homepage.
   * Build using GCC 8. This disables experimental::filesystem support for
-    the time being.
+    the time being and fixes the following issues:
+      - builds with weak references are now handled correctly
+        (closes: #890726);
+      - the packed attribute is handled (closes: #796209).
   * Remove the hard-coded GCC version in as many packaging files as
     possible.
 
