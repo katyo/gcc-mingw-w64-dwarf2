@@ -1,3 +1,9 @@
+gcc-mingw-w64 (21~exp2) experimental; urgency=medium
+
+  * Rebuild with the updated ada-gcc-name patch.
+
+ -- Stephen Kitt <skitt@debian.org>  Mon, 30 Jul 2018 16:32:45 +0200
+
 gcc-mingw-w64 (21~exp1) experimental; urgency=medium
 
   * Link to the secure version of the homepage.
