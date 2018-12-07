@@ -4,8 +4,8 @@ Maintainer: Stephen Kitt <skitt@debian.org>
 Section: devel
 Priority: optional
 Build-Depends: autotools-dev,
-               binutils-mingw-w64-i686 (>= 2.28~),
-               binutils-mingw-w64-x86-64 (>= 2.28~),
+               binutils-mingw-w64-i686 (>= 2.30~),
+               binutils-mingw-w64-x86-64 (>= 2.30~),
                bison,
                debhelper,
                flex,
@@ -43,7 +43,7 @@ Build-Profiles: <!stage1>
 
 Package: gcc-mingw-w64-i686
 Architecture: any
-Depends: binutils-mingw-w64-i686, mingw-w64-i686-dev, gcc-mingw-w64-base (= ${binary:Version}),
+Depends: binutils-mingw-w64-i686 (>= 2.30~), mingw-w64-i686-dev, gcc-mingw-w64-base (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Suggests: gcc-8-locales (>= ${local:Version})
@@ -62,7 +62,7 @@ Build-Profiles: <!stage1>
 
 Package: gcc-mingw-w64-x86-64
 Architecture: any
-Depends: binutils-mingw-w64-x86-64, mingw-w64-x86-64-dev, gcc-mingw-w64-base (= ${binary:Version}),
+Depends: binutils-mingw-w64-x86-64 (>= 2.30~), mingw-w64-x86-64-dev, gcc-mingw-w64-base (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Suggests: gcc-8-locales (>= ${local:Version})

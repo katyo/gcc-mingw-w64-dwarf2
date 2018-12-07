@@ -3,8 +3,8 @@ Maintainer: Stephen Kitt <skitt@debian.org>
 Section: devel
 Priority: optional
 Build-Depends: autotools-dev,
-               binutils-mingw-w64-i686 (>= 2.28~),
-               binutils-mingw-w64-x86-64 (>= 2.28~),
+               binutils-mingw-w64-i686 (>= 2.30~),
+               binutils-mingw-w64-x86-64 (>= 2.30~),
                bison,
                debhelper,
                flex,
