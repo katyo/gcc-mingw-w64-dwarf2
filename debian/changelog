@@ -15,8 +15,9 @@ gcc-mingw-w64 (21~exp2) experimental; urgency=medium
 gcc-mingw-w64 (21~exp1) experimental; urgency=medium
 
   * Link to the secure version of the homepage.
-  * Build using GCC 8. This disables experimental::filesystem support for
-    the time being and fixes the following issues:
+  * Build using GCC 8 (closes: #915733). This disables
+    experimental::filesystem support for the time being and fixes the
+    following issues:
       - builds with weak references are now handled correctly
         (closes: #890726);
       - the packed attribute is handled (closes: #796209).
