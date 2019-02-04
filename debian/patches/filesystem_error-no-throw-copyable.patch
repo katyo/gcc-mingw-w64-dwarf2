@@ -1,0 +1,438 @@
+commit 8092d42a27bb2a8c45d8219b95532e92ffa152ac
+Author: redi <redi@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date:   Wed Nov 28 15:27:11 2018 +0000
+
+    PR libstdc++/83306 make filesystem_error no-throw copyable
+    
+    The class API provides no way to modify the members, so we can share
+    them between copies of the same object. Copying becomes a simple
+    reference count update, which doesn't throw.
+    
+    Also adjust the what() string to allow distinguishing between an empty
+    path passed to the constructor, and no path.
+    
+            PR libstdc++/83306
+            * include/bits/fs_path.h (filesystem_error): Move data members into
+            pimpl class owned by shared_ptr. Remove inline definitions of member
+            functions.
+            * src/filesystem/std-path.cc (filesystem_error::_Impl): Define.
+            (filesystem_error): Define member functions.
+            * testsuite/27_io/filesystem/filesystem_error/cons.cc: New test.
+            * testsuite/27_io/filesystem/filesystem_error/copy.cc: New test.
+    
+    git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@266565 138bc75d-0d04-0410-961f-82ee72b054a4
+
+Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:26:59.450097187 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:26:59.450097187 +0100
+@@ -43,6 +43,8 @@
+ #include <system_error>
+ #include <bits/stl_algobase.h>
+ #include <bits/locale_conv.h>
++#include <ext/concurrence.h>
++#include <bits/shared_ptr.h>
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+ # define _GLIBCXX_FILESYSTEM_IS_WINDOWS 1
+@@ -576,30 +578,29 @@
+   class filesystem_error : public std::system_error
+   {
+   public:
+-    filesystem_error(const string& __what_arg, error_code __ec)
+-    : system_error(__ec, __what_arg) { }
++    filesystem_error(const string& __what_arg, error_code __ec);
+ 
+     filesystem_error(const string& __what_arg, const path& __p1,
+-		     error_code __ec)
+-    : system_error(__ec, __what_arg), _M_path1(__p1) { }
++		     error_code __ec);
+ 
+     filesystem_error(const string& __what_arg, const path& __p1,
+-		     const path& __p2, error_code __ec)
+-    : system_error(__ec, __what_arg), _M_path1(__p1), _M_path2(__p2)
+-    { }
++		     const path& __p2, error_code __ec);
++
++    filesystem_error(const filesystem_error&) = default;
++    filesystem_error& operator=(const filesystem_error&) = default;
++
++    // No move constructor or assignment operator.
++    // Copy rvalues instead, so that _M_impl is not left empty.
+ 
+     ~filesystem_error();
+ 
+-    const path& path1() const noexcept { return _M_path1; }
+-    const path& path2() const noexcept { return _M_path2; }
+-    const char* what() const noexcept { return _M_what.c_str(); }
++    const path& path1() const noexcept;
++    const path& path2() const noexcept;
++    const char* what() const noexcept;
+ 
+   private:
+-    std::string _M_gen_what();
+-
+-    path _M_path1;
+-    path _M_path2;
+-    std::string _M_what = _M_gen_what();
++    struct _Impl;
++    std::__shared_ptr<const _Impl> _M_impl;
+   };
+ 
+   struct path::_Cmpt : path
+@@ -1159,6 +1160,8 @@
+ _GLIBCXX_END_NAMESPACE_CXX11
+ } // namespace filesystem
+ 
++extern template class __shared_ptr<const filesystem::filesystem_error::_Impl>;
++
+ _GLIBCXX_END_NAMESPACE_VERSION
+ } // namespace std
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:26:59.450097187 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:26:59.450097187 +0100
+@@ -34,8 +34,6 @@
+ namespace fs = std::filesystem;
+ using fs::path;
+ 
+-fs::filesystem_error::~filesystem_error() = default;
+-
+ constexpr path::value_type path::preferred_separator;
+ 
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+@@ -746,47 +744,83 @@
+   return seed;
+ }
+ 
+-namespace std
+-{
+-_GLIBCXX_BEGIN_NAMESPACE_VERSION
+-namespace filesystem
++struct fs::filesystem_error::_Impl
+ {
+-  string
+-  fs_err_concat(const string& __what, const string& __path1,
+-		  const string& __path2)
++  _Impl(const string& what_arg, const path& p1, const path& p2)
++  : path1(p1), path2(p2), what(make_what(what_arg, &p1, &p2))
++  { }
++
++  _Impl(const string& what_arg, const path& p1)
++  : path1(p1), path2(), what(make_what(what_arg, &p1, nullptr))
++  { }
++
++  _Impl(const string& what_arg)
++  : what(make_what(what_arg, nullptr, nullptr))
++  { }
++
++  static std::string
++  make_what(const std::string& s, const path* p1, const path* p2)
+   {
+-    const size_t __len = 18 + __what.length()
+-      + (__path1.length() ? __path1.length() + 3 : 0)
+-      + (__path2.length() ? __path2.length() + 3 : 0);
+-    string __ret;
+-    __ret.reserve(__len);
+-    __ret = "filesystem error: ";
+-    __ret += __what;
+-    if (!__path1.empty())
+-      {
+-	__ret += " [";
+-	__ret += __path1;
+-	__ret += ']';
+-      }
+-    if (!__path2.empty())
++    const std::string pstr1 = p1 ? p1->u8string() : std::string{};
++    const std::string pstr2 = p2 ? p2->u8string() : std::string{};
++    const size_t len = 18 + s.length()
++      + (pstr1.length() ? pstr1.length() + 3 : 0)
++      + (pstr2.length() ? pstr2.length() + 3 : 0);
++    std::string w;
++    w.reserve(len);
++    w = "filesystem error: ";
++    w += s;
++    if (p1)
+       {
+-	__ret += " [";
+-	__ret += __path2;
+-	__ret += ']';
++	w += " [";
++	w += pstr1;
++	w += ']';
++	if (p2)
++	  {
++	    w += " [";
++	    w += pstr2;
++	    w += ']';
++	  }
+       }
+-    return __ret;
++    return w;
+   }
+ 
+-_GLIBCXX_BEGIN_NAMESPACE_CXX11
++  path path1;
++  path path2;
++  std::string what;
++};
++
++template class std::__shared_ptr<const fs::filesystem_error::_Impl>;
++
++fs::filesystem_error::
++filesystem_error(const string& what_arg, error_code ec)
++: system_error(ec, what_arg),
++  _M_impl(std::__make_shared<_Impl>(what_arg))
++{ }
++
++fs::filesystem_error::
++filesystem_error(const string& what_arg, const path& p1, error_code ec)
++: system_error(ec, what_arg),
++  _M_impl(std::__make_shared<_Impl>(what_arg, p1))
++{ }
++
++fs::filesystem_error::
++filesystem_error(const string& what_arg, const path& p1, const path& p2,
++		 error_code ec)
++: system_error(ec, what_arg),
++  _M_impl(std::__make_shared<_Impl>(what_arg, p1, p2))
++{ }
+ 
+-  std::string filesystem_error::_M_gen_what()
+-  {
+-    return fs_err_concat(system_error::what(), _M_path1.u8string(),
+-			 _M_path2.u8string());
+-  }
+-
+-_GLIBCXX_END_NAMESPACE_CXX11
++fs::filesystem_error::~filesystem_error() = default;
+ 
+-} // filesystem
+-_GLIBCXX_END_NAMESPACE_VERSION
+-} // std
++const fs::path&
++fs::filesystem_error::path1() const noexcept
++{ return _M_impl->path1; }
++
++const fs::path&
++fs::filesystem_error::path2() const noexcept
++{ return _M_impl->path2; }
++
++const char*
++fs::filesystem_error::what() const noexcept
++{ return _M_impl->what.c_str(); }
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/cons.cc
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/cons.cc	2019-02-04 14:26:59.450097187 +0100
+@@ -0,0 +1,93 @@
++// Copyright (C) 2018 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// { dg-options "-std=gnu++17 -lstdc++fs" }
++// { dg-do run { target c++17 } }
++// { dg-require-filesystem-ts "" }
++
++#include <filesystem>
++#include <testsuite_hooks.h>
++
++using std::filesystem::filesystem_error;
++
++bool contains(std::string_view what_str, std::string_view expected)
++{
++  return what_str.find(expected) != std::string_view::npos;
++}
++
++void
++test01()
++{
++  const char* const str = "error test";
++  const std::error_code ec = make_error_code(std::errc::is_a_directory);
++  const std::filesystem::path p1 = "test/path/one";
++  const std::filesystem::path p2 = "/test/path/two";
++
++  const filesystem_error e1(str, ec);
++  VERIFY( contains(e1.what(), str) );
++  VERIFY( !contains(e1.what(), "[]") ); // no "empty path" in the string
++  VERIFY( e1.path1().empty() );
++  VERIFY( e1.path2().empty() );
++  VERIFY( e1.code() == ec );
++
++  const filesystem_error e2(str, p1, ec);
++  VERIFY( e2.path1() == p1 );
++  VERIFY( e2.path2().empty() );
++  VERIFY( contains(e2.what(), str) );
++  VERIFY( contains(e2.what(), p1.string()) );
++  VERIFY( !contains(e2.what(), "[]") );
++  VERIFY( e2.code() == ec );
++
++  const filesystem_error e3(str, std::filesystem::path{}, ec);
++  VERIFY( e3.path1().empty() );
++  VERIFY( e3.path2().empty() );
++  VERIFY( contains(e3.what(), str) );
++  VERIFY( contains(e3.what(), "[]") );
++  VERIFY( !contains(e3.what(), "[] []") );
++  VERIFY( e3.code() == ec );
++
++  const filesystem_error e4(str, p1, p2, ec);
++  VERIFY( e4.path1() == p1 );
++  VERIFY( e4.path2() == p2 );
++  VERIFY( contains(e4.what(), str) );
++  VERIFY( contains(e4.what(), p1.string()) );
++  VERIFY( contains(e4.what(), p2.string()) );
++  VERIFY( !contains(e4.what(), "[]") );
++  VERIFY( e4.code() == ec );
++
++  const filesystem_error e5(str, p1, std::filesystem::path{}, ec);
++  VERIFY( e5.path1() == p1 );
++  VERIFY( e5.path2().empty() );
++  VERIFY( contains(e5.what(), str) );
++  VERIFY( contains(e5.what(), p1.string()) );
++  VERIFY( contains(e5.what(), "[]") );
++  VERIFY( e5.code() == ec );
++
++  const filesystem_error e6(str, std::filesystem::path{}, p2, ec);
++  VERIFY( e6.path1().empty() );
++  VERIFY( e6.path2() == p2 );
++  VERIFY( contains(e6.what(), str) );
++  VERIFY( contains(e6.what(), "[]") );
++  VERIFY( contains(e6.what(), p2.string()) );
++  VERIFY( e6.code() == ec );
++}
++
++int
++main()
++{
++  test01();
++}
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/copy.cc
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/copy.cc	2019-02-04 14:26:59.450097187 +0100
+@@ -0,0 +1,111 @@
++// Copyright (C) 2018 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// { dg-options "-std=gnu++17 -lstdc++fs" }
++// { dg-do run { target c++17 } }
++// { dg-require-filesystem-ts "" }
++
++#include <filesystem>
++#include <testsuite_hooks.h>
++
++using std::filesystem::filesystem_error;
++
++// PR libstdc++/83306
++static_assert(std::is_nothrow_copy_constructible_v<filesystem_error>);
++static_assert(std::is_nothrow_copy_assignable_v<filesystem_error>);
++
++void
++test01()
++{
++  const char* const str = "error test";
++  const std::error_code ec = make_error_code(std::errc::is_a_directory);
++  const filesystem_error e1(str, ec);
++  auto e2 = e1;
++  VERIFY( e2.path1().empty() );
++  VERIFY( e2.path2().empty() );
++  VERIFY( std::string_view(e2.what()).find(str) != std::string_view::npos );
++  VERIFY( e2.code() == ec );
++
++  const filesystem_error e3(str, "test/path/one", ec);
++  auto e4 = e3;
++  VERIFY( e4.path1() == "test/path/one" );
++  VERIFY( e4.path2().empty() );
++  VERIFY( std::string_view(e4.what()).find(str) != std::string_view::npos );
++  VERIFY( e2.code() == ec );
++
++  const filesystem_error e5(str, "test/path/one", "/test/path/two", ec);
++  auto e6 = e5;
++  VERIFY( e6.path1() == "test/path/one" );
++  VERIFY( e6.path2() == "/test/path/two" );
++  VERIFY( std::string_view(e6.what()).find(str) != std::string_view::npos );
++  VERIFY( e2.code() == ec );
++}
++
++void
++test02()
++{
++  const char* const str = "error test";
++  const std::error_code ec = make_error_code(std::errc::is_a_directory);
++  const filesystem_error e1(str, ec);
++  filesystem_error e2("", {});
++  e2 = e1;
++  VERIFY( e2.path1().empty() );
++  VERIFY( e2.path2().empty() );
++  VERIFY( std::string_view(e2.what()).find(str) != std::string_view::npos );
++  VERIFY( e2.code() == ec );
++
++  const filesystem_error e3(str, "test/path/one", ec);
++  filesystem_error e4("", {});
++  e4 = e3;
++  VERIFY( e4.path1() == "test/path/one" );
++  VERIFY( e4.path2().empty() );
++  VERIFY( std::string_view(e4.what()).find(str) != std::string_view::npos );
++  VERIFY( e2.code() == ec );
++
++  const filesystem_error e5(str, "test/path/one", "/test/path/two", ec);
++  filesystem_error e6("", {});
++  e6 = e5;
++  VERIFY( e6.path1() == "test/path/one" );
++  VERIFY( e6.path2() == "/test/path/two" );
++  VERIFY( std::string_view(e6.what()).find(str) != std::string_view::npos );
++  VERIFY( e2.code() == ec );
++}
++
++void
++test03()
++{
++  filesystem_error e("test", std::error_code());
++  VERIFY( e.path1().empty() );
++  VERIFY( e.path2().empty() );
++  auto e2 = std::move(e);
++  // Observers must still be usable on moved-from object:
++  VERIFY( e.path1().empty() );
++  VERIFY( e.path2().empty() );
++  VERIFY( e.what() != nullptr );
++  e2 = std::move(e);
++  VERIFY( e.path1().empty() );
++  VERIFY( e.path2().empty() );
++  VERIFY( e.what() != nullptr );
++}
++
++int
++main()
++{
++  test01();
++  test02();
++  test03();
++}

@@ -1,0 +1,3068 @@
+commit 2fd48392d0a4ac3d1e217367ccb0ec0333d584d8
+Author: redi <redi@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date:   Thu May 31 19:20:24 2018 +0000
+
+    PR libstdc++/78870 support std::filesystem on Windows
+    
+            PR libstdc++/78870 support std::filesystem on Windows
+            * config.h.in: Regenerate.
+            * configure: Regenerate.
+            * configure.ac: Check for link, readlink and symlink.
+            * include/bits/fs_path.h (path::operator/=(const path&)): Move
+            definition out of class body.
+            (path::is_absolute(), path::_M_append(path)): Likewise.
+            (operator<<(basic_ostream, const path&)): Use std::quoted directly.
+            (operator>>(basic_istream, path&)): Likewise.
+            (u8path): Reorder definitions and fix Windows implementation.
+            (path::is_absolute()): Define inline and fix for Windows.
+            [!_GLIBCXX_FILESYSTEM_IS_WINDOWS] (path::operator/=(const path&)):
+            Define POSIX version inline.
+            (path::_M_append(path)): Define inline.
+            * include/experimental/bits/fs_path.h (path::is_absolute()): Move
+            definition out of class body.
+            (operator<<(basic_ostream, const path&)): Fix type of delimiter and
+            escape characters.
+            (operator>>(basic_istream, path&)): Likewise.
+            (path::is_absolute()): Define inline and fix for Windows.
+            * src/filesystem/dir-common.h (__gnu_posix): New namespace.
+            (__gnu_posix::char_type, __gnu_posix::DIR, __gnu_posix::dirent)
+            (__gnu_posix::opendir, __gnu_posix::readdir, __gnu_posix::closedir):
+            Define as adaptors for Windows functions/types or as
+            using-declarations for POSIX functions/types.
+            (_Dir_base, get_file_type): Qualify names to use declarations from
+            __gnu_posix namespace.
+            (_Dir_base::is_dor_or_dotdot): New helper functions.
+            * src/filesystem/dir.cc (_Dir, recursive_directory_iterator): Qualify
+            names to use declarations from __gnu_posix namespace.
+            * src/filesystem/ops-common.h (__gnu_posix): New nested namespace.
+            (__gnu_posix::open, __gnu_posix::close, __gnu_posix::stat_type)
+            (__gnu_posix::stat, __gnu_posix::lstat, __gnu_posix::mode_t)
+            (__gnu_posix::chmod, __gnu_posix::mkdir, __gnu_posix::getcwd)
+            (__gnu_posix::chdir, __gnu_posix::utimbuf, __gnu_posix::utime)
+            (__gnu_posix::rename, __gnu_posix::truncate, __gnu_posix::char_type):
+            Define as adaptors for Windows functions/types or as
+            using-declarations for POSIX functions/types.
+            (stat_type, do_copy_file): Qualify names to use declarations from
+            __gnu_posix namespace.
+            (do_space): Declare new function.
+            (make_file_type): Only use S_ISLNK if defined.
+            * src/filesystem/ops.cc (char_ptr, filesystem::canonical): Use
+            path::value_type not char.
+            (filesystem::copy, create_dir, filesystem::create_directory): Qualify
+            names to use declarations from __gnu_posix namespace.
+            (filesystem::create_hard_link): Check HAVE_LINK autoconf macro and
+            add implementation for Windows.
+            (filesystem::create_symlink): Check HAVE_SYMLINK autoconf macro.
+            (filesystem::current_path(error_code&)): Use __gnu_posix::getcwd.
+            [!_PC_PATH_MAX]: Don't use pathconf.
+            [PATH_MAX]: Use if defined.
+            (filesystem::current_path(const path&, error_code&))
+            (filesystem::equivalent, do_stat, filesystem::hard_link_count)
+            (filesystem::last_write_time, filesystem::permissions): Use names
+            from __gnu_posix.
+            (filesystem::read_symlink): Check HAVE_READLINK autoconf macro.
+            (filesystem::remove) [_GLIBCXX_FILESYSTEM_IS_WINDOWS]: Add
+            implementation for Windows.
+            (filesystem::rename, filesystem::resize_file): Use names from
+            __gnu_posix.
+            (filesystem::space): Use do_space.
+            [_GLIBCXX_FILESYSTEM_IS_WINDOWS]: Get absolute path to directory.
+            (filesystem::status, filesystem::symlink_status): Use names from
+            __gnu_posix.
+            (filesystem::temp_directory_path): Add implementation for Windows.
+            * src/filesystem/path.cc (dot): Define constant.
+            (path::replace_extension): Use dot.
+            (path::_M_find_extension): Likewise. Use path::string_type not
+            std::string.
+            (path::_M_split_cmpts): Use dot.
+            (filesystem_error::_M_get_what): Use u8string() not native().
+            * src/filesystem/std-dir.cc (_Dir, recursive_directory_iterator):
+            Qualify names to use declarations from __gnu_posix namespace.
+            * src/filesystem/std-ops.cc (filesystem::absolute(const path&)): Use
+            correct error_code.
+            (filesystem::absolute(const path&, error_code&)): Add implementation
+            for Windows.
+            (char_ptr, filesystem::canonical): Use path::value_type not char.
+            (do_copy_file): Use names from __gnu_posix.
+            [_GLIBCXX_FILESYSTEM_IS_WINDOWS]: Do not use fchmod, fchmodat or
+            sendfile.
+            (filesystem::copy, create_dir, filesystem::create_directory): Qualify
+            names to use declarations from __gnu_posix namespace.
+            (filesystem::create_hard_link): Check HAVE_LINK autoconf macro and
+            add implementation for Windows.
+            (filesystem::create_symlink): Check HAVE_SYMLINK autoconf macro.
+            (filesystem::current_path(error_code&)): Use __gnu_posix::getcwd.
+            [!_PC_PATH_MAX]: Don't use pathconf.
+            [PATH_MAX]: Use if defined.
+            (filesystem::current_path(const path&, error_code&))
+            (filesystem::equivalent, do_stat, filesystem::hard_link_count)
+            (filesystem::last_write_time, filesystem::permissions): Use names
+            from __gnu_posix.
+            (filesystem::read_symlink): Check HAVE_READLINK autoconf macro.
+            (filesystem::remove) [_GLIBCXX_FILESYSTEM_IS_WINDOWS]: Add
+            implementation for Windows.
+            (filesystem::rename, filesystem::resize_file): Use names from
+            __gnu_posix.
+            (do_space): Define.
+            (filesystem::space): Use do_space.
+            (filesystem::status, filesystem::symlink_status): Use names from
+            __gnu_posix.
+            (filesystem::temp_directory_path): Add implementation for Windows.
+            * src/filesystem/std-path.cc
+            [_GLIBCXX_FILESYSTEM_IS_WINDOWS] (path::operator/=(const path&)):
+            Define for Windows.
+            (dot): Define constant.
+            (path::replace_extension, is_dot): Use dot.
+            (path::lexically_normal): Check _M_type instead of calling
+            non-existent function.
+            (path::_M_find_extension): Use dot. Use path::string_type not
+            std::string.
+            (path::_M_split_cmpts): Use dot.
+            (filesystem_error::_M_get_what): Use u8string() not native().
+            * testsuite/27_io/filesystem/iterators/directory_iterator.cc: Do not
+            use symlinks.
+            * testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc:
+            Likewise.
+            * testsuite/27_io/filesystem/operations/absolute.cc: Use
+            __gnu_test::root_path() instead of "/" and add Windows-specific tests.
+            * testsuite/27_io/filesystem/operations/canonical.cc: Use
+            path::string() to get narrow string, not path::native().
+            * testsuite/27_io/filesystem/operations/copy.cc: Construct fstreams
+            with std::filesystem::path not std::basic_string.
+            * testsuite/27_io/filesystem/operations/copy_file.cc: Likewise.
+            * testsuite/27_io/filesystem/operations/exists.cc: Use
+            __gnu_test::root_path() instead of "/".
+            * testsuite/27_io/filesystem/operations/is_empty.cc: Construct
+            fstreams with std::filesystem::path not std::basic_string.
+            * testsuite/27_io/filesystem/operations/last_write_time.cc: Use
+            path::string() to get narrow string.
+            * testsuite/27_io/filesystem/operations/space.cc: Check results for
+            errors, expect sensible values otherwise.
+            * testsuite/27_io/filesystem/operations/temp_directory_path.cc: Add
+            helpers for adjusting the environment on Windows.
+            * testsuite/27_io/filesystem/path/append/path.cc: Test
+            Windows-specific behaviour.
+            * testsuite/27_io/filesystem/path/construct/format.cc: Fix creation
+            of path::string_type objects.
+            * testsuite/27_io/filesystem/path/construct/locale.cc: Compare native
+            string to wide string on Windows.
+            * testsuite/27_io/filesystem/path/decompose/root_directory.cc: Allow
+            for backslash as root-directory.
+            * testsuite/27_io/filesystem/path/decompose/stem.cc: Use
+            path::string() to get narrow string.
+            * testsuite/27_io/filesystem/path/itr/traversal.cc: Test Windows-style
+            paths.
+            * testsuite/27_io/filesystem/path/native/string.cc: Use string_type
+            not std::string.
+            * testsuite/27_io/filesystem/path/query/is_absolute.cc: Adjust for
+            different definintion of absolute paths on Windows.
+            * testsuite/experimental/filesystem/iterators/directory_iterator.cc:
+            Do not use symlinks.
+            * testsuite/experimental/filesystem/operations/absolute.cc: Test
+            Windows behaviour.
+            * testsuite/experimental/filesystem/operations/copy.cc: Construct
+            fstreams with NTCTS not std::basic_string.
+            * testsuite/experimental/filesystem/operations/copy_file.cc: Likewise.
+            * testsuite/experimental/filesystem/operations/exists.cc: Use
+            __gnu_test::root_path() instead of "/".
+            * testsuite/experimental/filesystem/operations/is_empty.cc: Construct
+            fstreams with NTCTS not std::basic_string.
+            * testsuite/experimental/filesystem/operations/last_write_time.cc:
+            Use path::string() to get narrow string.
+            * testsuite/experimental/filesystem/operations/space.cc: Use
+            __gnu_test::root_path() instead of "/".
+            * testsuite/experimental/filesystem/operations/temp_directory_path.cc:
+            Add helpers for adjusting the environment on Windows.
+            * testsuite/experimental/filesystem/path/append/path.cc: Use
+            path::string() to get narrow strings for comparisons.
+            * testsuite/experimental/filesystem/path/concat/path.cc: Likewise.
+            * testsuite/experimental/filesystem/path/decompose/root_directory.cc:
+            Likewise.
+            * testsuite/experimental/filesystem/path/decompose/stem.cc: Likewise.
+            * testsuite/experimental/filesystem/path/native/string.cc: Use
+            string_type not std::string.
+            * testsuite/experimental/filesystem/path/query/is_absolute.cc:
+            Adjust for different definintion of absolute paths on Windows.
+            * testsuite/util/testsuite_fs.h (__gnu_test::root_path()): New
+            function.
+            (__gnu_test::scoped_file): Construct fstreams with NTCTS not
+            std::basic_string.
+    
+    git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@261034 138bc75d-0d04-0410-961f-82ee72b054a4
+
+Index: gcc-mingw-w64/src/libstdc++-v3/config.h.in
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/config.h.in	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/config.h.in	2019-02-04 14:09:46.192352056 +0100
+@@ -264,6 +264,9 @@
+ /* Only used in build directory testsuite_hooks.h. */
+ #undef HAVE_LIMIT_VMEM
+ 
++/* Define to 1 if you have the `link' function. */
++#undef HAVE_LINK
++
+ /* Define if futex syscall is available. */
+ #undef HAVE_LINUX_FUTEX
+ 
+@@ -339,6 +342,9 @@
+ /* Define to 1 if you have the `quick_exit' function. */
+ #undef HAVE_QUICK_EXIT
+ 
++/* Define to 1 if you have the `readlink' function. */
++#undef HAVE_READLINK
++
+ /* Define to 1 if you have the `setenv' function. */
+ #undef HAVE_SETENV
+ 
+@@ -408,6 +414,9 @@
+ /* Define if strxfrm_l is available in <string.h>. */
+ #undef HAVE_STRXFRM_L
+ 
++/* Define to 1 if you have the `symlink' function. */
++#undef HAVE_SYMLINK
++
+ /* Define to 1 if the target runtime linker supports binding the same symbol
+    to different versions. */
+ #undef HAVE_SYMVER_SYMBOL_RENAMING_RUNTIME_SUPPORT
+Index: gcc-mingw-w64/src/libstdc++-v3/configure
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/configure	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/configure	2019-02-04 14:09:46.196352172 +0100
+@@ -80063,6 +80063,19 @@
+ 
+ done
+ 
++for ac_func in link readlink symlink
++do :
++  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
++ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
++eval as_val=\$$as_ac_var
++   if test "x$as_val" = x""yes; then :
++  cat >>confdefs.h <<_ACEOF
++#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
++_ACEOF
++
++fi
++done
++
+ 
+    # Check whether --enable-libstdcxx-filesystem-ts was given.
+ if test "${enable_libstdcxx_filesystem_ts+set}" = set; then :
+Index: gcc-mingw-w64/src/libstdc++-v3/configure.ac
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/configure.ac	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/configure.ac	2019-02-04 14:09:46.196352172 +0100
+@@ -420,6 +420,7 @@
+ 
+ # For Filesystem TS.
+ AC_CHECK_HEADERS([fcntl.h dirent.h sys/statvfs.h utime.h])
++AC_CHECK_FUNCS(link readlink symlink)
+ GLIBCXX_ENABLE_FILESYSTEM_TS
+ GLIBCXX_CHECK_FILESYSTEM_DEPS
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:09:46.196352172 +0100
+@@ -37,11 +37,11 @@
+ #include <vector>
+ #include <locale>
+ #include <iosfwd>
++#include <iomanip>
+ #include <codecvt>
+ #include <string_view>
+ #include <system_error>
+ #include <bits/stl_algobase.h>
+-#include <bits/quoted_string.h>
+ #include <bits/locale_conv.h>
+ 
+ #if defined(_WIN32) && !defined(__CYGWIN__)
+@@ -233,37 +233,7 @@
+ 
+     // appends
+ 
+-    path& operator/=(const path& __p)
+-    {
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-      if (__p.is_absolute()
+-	  || (__p.has_root_name() && __p.root_name() != root_name()))
+-	operator=(__p);
+-      else
+-	{
+-	  string_type __pathname;
+-	  if (__p.has_root_directory())
+-	    __pathname = root_name().native();
+-	  else if (has_filename() || (!has_root_directory() && is_absolute()))
+-	    __pathname = _M_pathname + preferred_separator;
+-	  __pathname += __p.relative_path().native(); // XXX is this right?
+-	  _M_pathname.swap(__pathname);
+-	  _M_split_cmpts();
+-	}
+-#else
+-      // Much simpler, as any path with root-name or root-dir is absolute.
+-      if (__p.is_absolute())
+-	operator=(__p);
+-      else
+-	{
+-	  if (has_filename() || (_M_type == _Type::_Root_name))
+-	    _M_pathname += preferred_separator;
+-	  _M_pathname += __p.native();
+-	  _M_split_cmpts();
+-	}
+-#endif
+-      return *this;
+-    }
++    path& operator/=(const path& __p);
+ 
+     template <class _Source>
+       _Path<_Source>&
+@@ -379,7 +349,7 @@
+     bool has_filename() const;
+     bool has_stem() const;
+     bool has_extension() const;
+-    bool is_absolute() const { return has_root_directory(); }
++    bool is_absolute() const;
+     bool is_relative() const { return !is_absolute(); }
+ 
+     // generation
+@@ -420,19 +390,7 @@
+ 
+     enum class _Split { _Stem, _Extension };
+ 
+-    path&
+-    _M_append(path __p)
+-    {
+-      if (__p.is_absolute())
+-	operator=(std::move(__p));
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-      else if (__p.has_root_name() && __p.root_name() != root_name())
+-	operator=(std::move(__p));
+-#endif
+-      else
+-	operator/=(const_cast<const path&>(__p));
+-      return *this;
+-    }
++    path& _M_append(path __p);
+ 
+     pair<const string_type*, size_t> _M_find_extension() const;
+ 
+@@ -553,10 +511,7 @@
+     basic_ostream<_CharT, _Traits>&
+     operator<<(basic_ostream<_CharT, _Traits>& __os, const path& __p)
+     {
+-      auto __tmp = __p.string<_CharT, _Traits>();
+-      using __quoted_string
+-	= std::__detail::_Quoted_string<decltype(__tmp)&, _CharT>;
+-      __os << __quoted_string{__tmp, '"', '\\'};
++      __os << std::quoted(__p.string<_CharT, _Traits>());
+       return __os;
+     }
+ 
+@@ -566,40 +521,55 @@
+     operator>>(basic_istream<_CharT, _Traits>& __is, path& __p)
+     {
+       basic_string<_CharT, _Traits> __tmp;
+-      using __quoted_string
+-	= std::__detail::_Quoted_string<decltype(__tmp)&, _CharT>;
+-      if (__is >> __quoted_string{ __tmp, '"', '\\' })
++      if (__is >> std::quoted(__tmp))
+ 	__p = std::move(__tmp);
+       return __is;
+     }
+ 
+-  template<typename _Source>
++  template<typename _InputIterator>
+     inline auto
+-    u8path(const _Source& __source)
+-    -> decltype(filesystem::path(__source, std::locale::classic()))
++    u8path(_InputIterator __first, _InputIterator __last)
++    -> decltype(filesystem::path(__first, __last, std::locale::classic()))
+     {
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-      const std::string __u8str{__source};
+-      return std::filesystem::u8path(__u8str.begin(), __u8str.end());
++      codecvt_utf8<path::value_type> __cvt;
++      path::string_type __tmp;
++      if constexpr (is_pointer_v<_InputIterator>)
++	{
++	  if (__str_codecvt_in(__first, __last, __tmp, __cvt))
++	    return path{ __tmp };
++	}
++      else
++	{
++	  const std::string __u8str{__first, __last};
++	  const char* const __ptr = __u8str.data();
++	  if (__str_codecvt_in(__ptr, __ptr + __u8str.size(), __tmp, __cvt))
++	    return path{ __tmp };
++	}
++      return {};
+ #else
+-      return path{ __source };
++      return path{ __first, __last };
+ #endif
+     }
+ 
+-  template<typename _InputIterator>
++  template<typename _Source>
+     inline auto
+-    u8path(_InputIterator __first, _InputIterator __last)
+-    -> decltype(filesystem::path(__first, __last, std::locale::classic()))
++    u8path(const _Source& __source)
++    -> decltype(filesystem::path(__source, std::locale::classic()))
+     {
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-      codecvt_utf8<value_type> __cvt;
+-      string_type __tmp;
+-      if (__str_codecvt_in(__first, __last, __tmp, __cvt))
+-	return path{ __tmp };
++      if constexpr (is_convertible_v<const _Source&, std::string_view>)
++	{
++	  const std::string_view __s = __source;
++	  return filesystem::u8path(__s.data(), __s.data() + __s.size());
++	}
+       else
+-	return {};
++	{
++	  std::string __s = path::_S_string_from_iter(__source);
++	  return filesystem::u8path(__s.data(), __s.data() + __s.size());
++	}
+ #else
+-      return path{ __first, __last };
++      return path{ __source };
+ #endif
+     }
+ 
+@@ -1069,6 +1039,16 @@
+     return ext.first && ext.second != string_type::npos;
+   }
+ 
++  inline bool
++  path::is_absolute() const
++  {
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++    return has_root_name() && has_root_directory();
++#else
++    return has_root_directory();
++#endif
++  }
++
+   inline path::iterator
+   path::begin() const
+   {
+@@ -1085,6 +1065,38 @@
+     return iterator(this, true);
+   }
+ 
++#ifndef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  inline path& path::operator/=(const path& __p)
++  {
++    // Much simpler than the specification in the standard,
++    // as any path with root-name or root-dir is absolute.
++    if (__p.is_absolute())
++      operator=(__p);
++    else
++      {
++	if (has_filename() || (_M_type == _Type::_Root_name))
++	  _M_pathname += preferred_separator;
++	_M_pathname += __p.native();
++	_M_split_cmpts();
++      }
++    return *this;
++  }
++#endif
++
++  inline path&
++  path::_M_append(path __p)
++  {
++    if (__p.is_absolute())
++      operator=(std::move(__p));
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++    else if (__p.has_root_name() && __p.root_name() != root_name())
++      operator=(std::move(__p));
++#endif
++    else
++      operator/=(const_cast<const path&>(__p));
++    return *this;
++  }
++
+   inline path::iterator&
+   path::iterator::operator++()
+   {
+Index: gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-04 14:09:46.196352172 +0100
+@@ -374,7 +374,7 @@
+     bool has_filename() const;
+     bool has_stem() const;
+     bool has_extension() const;
+-    bool is_absolute() const { return has_root_directory(); }
++    bool is_absolute() const;
+     bool is_relative() const { return !is_absolute(); }
+ 
+     // iterators
+@@ -539,7 +539,7 @@
+       auto __tmp = __p.string<_CharT, _Traits>();
+       using __quoted_string
+ 	= std::__detail::_Quoted_string<decltype(__tmp)&, _CharT>;
+-      __os << __quoted_string{__tmp, '"', '\\'};
++      __os << __quoted_string{__tmp, _CharT('"'), _CharT('\\')};
+       return __os;
+     }
+ 
+@@ -551,7 +551,7 @@
+       basic_string<_CharT, _Traits> __tmp;
+       using __quoted_string
+ 	= std::__detail::_Quoted_string<decltype(__tmp)&, _CharT>;
+-      if (__is >> __quoted_string{ __tmp, '"', '\\' })
++      if (__is >> __quoted_string{ __tmp, _CharT('"'), _CharT('\\') })
+ 	__p = std::move(__tmp);
+       return __is;
+     }
+@@ -995,6 +995,16 @@
+     return ext.first && ext.second != string_type::npos;
+   }
+ 
++  inline bool
++  path::is_absolute() const
++  {
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++    return has_root_name() && has_root_directory();
++#else
++    return has_root_directory();
++#endif
++  }
++
+   inline path::iterator
+   path::begin() const
+   {
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir-common.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/dir-common.h	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir-common.h	2019-02-04 14:09:46.196352172 +0100
+@@ -26,6 +26,9 @@
+ #define _GLIBCXX_DIR_COMMON_H 1
+ 
+ #include <string.h>  // strcmp
++#if _GLIBCXX_FILESYSTEM_IS_WINDOWS
++#include <wchar.h>  // wcscmp
++#endif
+ #ifdef _GLIBCXX_HAVE_DIRENT_H
+ # ifdef _GLIBCXX_HAVE_SYS_TYPES_H
+ #  include <sys/types.h>
+@@ -35,26 +38,42 @@
+ # error "the <dirent.h> header is needed to build the Filesystem TS"
+ #endif
+ 
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-# undef opendir
+-# define opendir _wopendir
+-#endif
+-
+ namespace std _GLIBCXX_VISIBILITY(default)
+ {
+ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ namespace filesystem
+ {
++namespace __gnu_posix
++{
++#if _GLIBCXX_FILESYSTEM_IS_WINDOWS
++// Adapt the Windows _wxxx functions to look like POSIX xxx, but for wchar_t*.
++using char_type = wchar_t;
++using DIR = ::_WDIR;
++using dirent = _wdirent;
++inline DIR* opendir(const wchar_t* path) { return ::_wopendir(path); }
++inline dirent* readdir(DIR* dir) { return ::_wreaddir(dir); }
++inline int closedir(DIR* dir) { return ::_wclosedir(dir); }
++#else
++using char_type = char;
++using DIR = ::DIR;
++typedef struct ::dirent dirent;
++using ::opendir;
++using ::readdir;
++using ::closedir;
++#endif
++} // namespace __gnu_posix
++
++namespace posix = __gnu_posix;
+ 
+ struct _Dir_base
+ {
+-  _Dir_base(DIR* dirp = nullptr) : dirp(dirp) { }
++  _Dir_base(posix::DIR* dirp = nullptr) : dirp(dirp) { }
+ 
+   // If no error occurs then dirp is non-null,
+   // otherwise null (whether error ignored or not).
+-  _Dir_base(const char* p, bool skip_permission_denied,
++  _Dir_base(const posix::char_type* pathname, bool skip_permission_denied,
+ 	    error_code& ec) noexcept
+-  : dirp(::opendir(p))
++  : dirp(posix::opendir(pathname))
+   {
+     if (dirp)
+       ec.clear();
+@@ -72,22 +91,22 @@
+ 
+   _Dir_base& operator=(_Dir_base&&) = delete;
+ 
+-  ~_Dir_base() { if (dirp) ::closedir(dirp); }
++  ~_Dir_base() { if (dirp) posix::closedir(dirp); }
+ 
+-  const struct ::dirent*
++  const posix::dirent*
+   advance(bool skip_permission_denied, error_code& ec) noexcept
+   {
+     ec.clear();
+ 
+     int err = std::exchange(errno, 0);
+-    const struct ::dirent* entp = readdir(dirp);
++    const posix::dirent* entp = posix::readdir(dirp);
+     // std::swap cannot be used with Bionic's errno
+     err = std::exchange(errno, err);
+ 
+     if (entp)
+       {
+ 	// skip past dot and dot-dot
+-	if (!strcmp(entp->d_name, ".") || !strcmp(entp->d_name, ".."))
++	if (is_dot_or_dotdot(entp->d_name))
+ 	  return advance(skip_permission_denied, ec);
+ 	return entp;
+       }
+@@ -105,15 +124,24 @@
+       }
+   }
+ 
+-  DIR*	dirp;
++  static bool is_dot_or_dotdot(const char* s) noexcept
++  { return !strcmp(s, ".") || !strcmp(s, ".."); }
++
++#if _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  static bool is_dot_or_dotdot(const wchar_t* s) noexcept
++  { return !wcscmp(s, L".") || !wcscmp(s, L".."); }
++#endif
++
++  posix::DIR*	dirp;
+ };
+ 
+ } // namespace filesystem
+ 
+ // BEGIN/END macros must be defined before including this file.
+ _GLIBCXX_BEGIN_NAMESPACE_FILESYSTEM
++
+ inline file_type
+-get_file_type(const ::dirent& d __attribute__((__unused__)))
++get_file_type(const std::filesystem::__gnu_posix::dirent& d [[gnu::unused]])
+ {
+ #ifdef _GLIBCXX_HAVE_STRUCT_DIRENT_D_TYPE
+   switch (d.d_type)
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/dir.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir.cc	2019-02-04 14:09:46.196352172 +0100
+@@ -37,6 +37,7 @@
+ #include "dir-common.h"
+ 
+ namespace fs = std::experimental::filesystem;
++namespace posix = std::filesystem::__gnu_posix;
+ 
+ struct fs::_Dir : std::filesystem::_Dir_base
+ {
+@@ -47,7 +48,7 @@
+       path = p;
+   }
+ 
+-  _Dir(DIR* dirp, const path& p) : _Dir_base(dirp), path(p) { }
++  _Dir(posix::DIR* dirp, const path& p) : _Dir_base(dirp), path(p) { }
+ 
+   _Dir(_Dir&&) = default;
+ 
+@@ -185,7 +186,7 @@
+ {
+   if (ec)
+     ec->clear();
+-  if (DIR* dirp = ::opendir(p.c_str()))
++  if (posix::DIR* dirp = posix::opendir(p.c_str()))
+     {
+       auto sp = std::make_shared<_Dir_stack>();
+       sp->push(_Dir{ dirp, p });
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops-common.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/ops-common.h	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops-common.h	2019-02-04 14:09:46.196352172 +0100
+@@ -34,12 +34,103 @@
+ #  include <sys/stat.h>
+ # endif
+ #endif
++#if !_GLIBCXX_USE_UTIMENSAT && _GLIBCXX_HAVE_UTIME_H
++# include <utime.h> // utime
++#endif
++
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++# include <wchar.h>
++#endif
+ 
+ namespace std _GLIBCXX_VISIBILITY(default)
+ {
+ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ namespace filesystem
+ {
++namespace __gnu_posix
++{
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++// Adapt the Windows _wxxx functions to look like POSIX xxx, but for wchar_t*.
++  inline int open(const wchar_t* path, int flags)
++  { return ::_wopen(path, flags); }
++
++  inline int open(const wchar_t* path, int flags, int mode)
++  { return ::_wopen(path, flags, mode); }
++
++  inline int close(int fd)
++  { return ::_close(fd); }
++
++  typedef struct ::_stat stat_type;
++
++  inline int stat(const wchar_t* path, stat_type* buffer)
++  { return ::_wstat(path, buffer); }
++
++  inline lstat(const wchar_t* path, stat_type* buffer)
++  {
++    // TODO symlinks not currently supported
++    return stat(path, buffer);
++  }
++
++  using ::mode_t;
++
++  inline int chmod(const wchar_t* path, mode_t mode)
++  { return ::_wchmod(path, mode); }
++
++  inline int mkdir(const wchar_t* path, mode_t)
++  { return ::_wmkdir(path); }
++
++  inline wchar_t* getcwd(wchar_t* buf, size_t size)
++  { return ::_wgetcwd(buf, size > (size_t)INT_MAX ? INT_MAX : (int)size); }
++
++  inline int chdir(const wchar_t* path)
++  { return ::_wchdir(path); }
++
++#if !_GLIBCXX_USE_UTIMENSAT && _GLIBCXX_HAVE_UTIME_H
++  using utimbuf = _utimbuf;
++
++  inline int utime(const wchar_t* path, utimbuf* times)
++  { return ::_wutime(path, times); }
++#endif
++
++  inline int rename(const wchar_t* oldname, const wchar_t* newname)
++  { return _wrename(oldname, newname); }
++
++  inline int truncate(const wchar_t* path, _off64_t length)
++  {
++    const int fd = ::_wopen(path, _O_BINARY|_O_RDWR);
++    if (fd == -1)
++      return fd;
++    const int ret = ::ftruncate64(fd, length);
++    int err;
++    ::_get_errno(&err);
++    ::_close(fd);
++    ::_set_errno(err);
++    return ret;
++  }
++  using char_type = wchar_t;
++#else // _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  using ::open;
++  using ::close;
++#ifdef _GLIBCXX_HAVE_SYS_STAT_H
++  typedef struct ::stat stat_type;
++  using ::stat;
++  using ::lstat;
++#endif
++  using ::mode_t;
++  using ::chmod;
++  using ::mkdir;
++  using ::getcwd;
++  using ::chdir;
++#if !_GLIBCXX_USE_UTIMENSAT && _GLIBCXX_HAVE_UTIME_H
++  using ::utimbuf;
++  using ::utime;
++#endif
++  using ::rename;
++  using ::truncate;
++  using char_type = char;
++#endif // _GLIBCXX_FILESYSTEM_IS_WINDOWS
++} // namespace __gnu_posix
++
+   template<typename Bitmask>
+     inline bool is_set(Bitmask obj, Bitmask bits)
+     {
+@@ -53,7 +144,7 @@
+   }
+ 
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+-  typedef struct ::stat stat_type;
++  using __gnu_posix::stat_type;
+ 
+   inline std::chrono::system_clock::time_point
+   file_time(const stat_type& st, std::error_code& ec) noexcept
+@@ -82,11 +173,17 @@
+   };
+ 
+   bool
+-  do_copy_file(const char* from, const char* to,
++  do_copy_file(const __gnu_posix::char_type* from,
++	       const __gnu_posix::char_type* to,
+ 	       copy_options_existing_file options,
+ 	       stat_type* from_st, stat_type* to_st,
+ 	       std::error_code& ec) noexcept;
+ 
++  void
++  do_space(const __gnu_posix::char_type* pathname,
++	   uintmax_t& capacity, uintmax_t& free, uintmax_t& available,
++	   std::error_code&);
++
+ #endif // _GLIBCXX_HAVE_SYS_STAT_H
+ 
+ } // namespace filesystem
+@@ -95,7 +192,7 @@
+ _GLIBCXX_BEGIN_NAMESPACE_FILESYSTEM
+ 
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+-  typedef struct ::stat stat_type;
++  using std::filesystem::__gnu_posix::stat_type;
+ 
+   inline file_type
+   make_file_type(const stat_type& st) noexcept
+@@ -111,8 +208,10 @@
+       return file_type::block;
+     else if (S_ISFIFO(st.st_mode))
+       return file_type::fifo;
++#ifdef S_ISLNK // not present in mingw
+     else if (S_ISLNK(st.st_mode))
+       return file_type::symlink;
++#endif
+ #ifdef S_ISSOCK // not present until POSIX:2001
+     else if (S_ISSOCK(st.st_mode))
+       return file_type::socket;
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/ops.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -47,20 +47,17 @@
+ #if !_GLIBCXX_USE_UTIMENSAT && _GLIBCXX_HAVE_UTIME_H
+ # include <utime.h> // utime
+ #endif
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++# include <windows.h>
++#endif
+ 
+ #define _GLIBCXX_BEGIN_NAMESPACE_FILESYSTEM \
+   namespace experimental { namespace filesystem {
+ #define _GLIBCXX_END_NAMESPACE_FILESYSTEM } }
+ #include "ops-common.h"
+ 
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-# undef utime
+-# define utime _wutime
+-# undef chmod
+-# define chmod _wchmod
+-#endif
+-
+ namespace fs = std::experimental::filesystem;
++namespace posix = std::filesystem::__gnu_posix;
+ 
+ fs::path
+ fs::absolute(const path& p, const path& base)
+@@ -109,7 +106,7 @@
+     void operator()(void* p) const { ::free(p); }
+   };
+ 
+-  using char_ptr = std::unique_ptr<char[], free_as_in_malloc>;
++  using char_ptr = std::unique_ptr<fs::path::value_type[], free_as_in_malloc>;
+ }
+ 
+ fs::path
+@@ -122,7 +119,8 @@
+   char_ptr buf{ nullptr };
+ # if _XOPEN_VERSION < 700
+   // Not safe to call realpath(path, NULL)
+-  buf.reset( (char*)::malloc(PATH_MAX) );
++  using char_type = fs::path::value_type;
++  buf.reset( (char_type*)::malloc(PATH_MAX * sizeof(char_type)) );
+ # endif
+   if (char* rp = ::realpath(pa.c_str(), buf.get()))
+     {
+@@ -241,12 +239,13 @@
+   using std::filesystem::is_set;
+ 
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+-  typedef struct ::stat stat_type;
++  using posix::stat_type;
+ 
+   using std::filesystem::is_not_found_errno;
+   using std::filesystem::file_time;
+   using std::filesystem::do_copy_file;
+ #endif // _GLIBCXX_HAVE_SYS_STAT_H
++
+ } // namespace
+ 
+ void
+@@ -263,15 +262,15 @@
+   // _GLIBCXX_RESOLVE_LIB_DEFECTS
+   // 2681. filesystem::copy() cannot copy symlinks
+   if (use_lstat || copy_symlinks
+-      ? ::lstat(from.c_str(), &from_st)
+-      : ::stat(from.c_str(), &from_st))
++      ? posix::lstat(from.c_str(), &from_st)
++      : posix::stat(from.c_str(), &from_st))
+     {
+       ec.assign(errno, std::generic_category());
+       return;
+     }
+   if (use_lstat
+-      ? ::lstat(to.c_str(), &to_st)
+-      : ::stat(to.c_str(), &to_st))
++      ? posix::lstat(to.c_str(), &to_st)
++      : posix::stat(to.c_str(), &to_st))
+     {
+       if (!is_not_found_errno(errno))
+ 	{
+@@ -459,8 +458,8 @@
+   {
+     bool created = false;
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+-    ::mode_t mode = static_cast<std::underlying_type_t<fs::perms>>(perm);
+-    if (::mkdir(p.c_str(), mode))
++    posix::mode_t mode = static_cast<std::underlying_type_t<fs::perms>>(perm);
++    if (posix::mkdir(p.c_str(), mode))
+       {
+ 	const int err = errno;
+ 	if (err != EEXIST || !is_directory(p, ec))
+@@ -513,7 +512,7 @@
+ {
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+   stat_type st;
+-  if (::stat(attributes.c_str(), &st))
++  if (posix::stat(attributes.c_str(), &st))
+     {
+       ec.assign(errno, std::generic_category());
+       return false;
+@@ -562,11 +561,16 @@
+ fs::create_hard_link(const path& to, const path& new_hard_link,
+ 		     error_code& ec) noexcept
+ {
+-#ifdef _GLIBCXX_HAVE_UNISTD_H
++#ifdef _GLIBCXX_HAVE_LINK
+   if (::link(to.c_str(), new_hard_link.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
++#elif defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  if (CreateHardLinkW(new_hard_link.c_str(), to.c_str(), NULL))
++    ec.clear();
++  else
++    ec.assign((int)GetLastError(), generic_category());
+ #else
+   ec = std::make_error_code(std::errc::not_supported);
+ #endif
+@@ -586,7 +590,7 @@
+ fs::create_symlink(const path& to, const path& new_symlink,
+ 		   error_code& ec) noexcept
+ {
+-#ifdef _GLIBCXX_HAVE_UNISTD_H
++#ifdef _GLIBCXX_HAVE_SYMLINK
+   if (::symlink(to.c_str(), new_symlink.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+@@ -596,7 +600,6 @@
+ #endif
+ }
+ 
+-
+ fs::path
+ fs::current_path()
+ {
+@@ -612,8 +615,8 @@
+ {
+   path p;
+ #ifdef _GLIBCXX_HAVE_UNISTD_H
+-#ifdef __GLIBC__
+-  if (char_ptr cwd = char_ptr{::getcwd(nullptr, 0)})
++#if defined __GLIBC__ || defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  if (char_ptr cwd = char_ptr{posix::getcwd(nullptr, 0)})
+     {
+       p.assign(cwd.get());
+       ec.clear();
+@@ -621,6 +624,7 @@
+   else
+     ec.assign(errno, std::generic_category());
+ #else
++#ifdef _PC_PATH_MAX
+   long path_max = pathconf(".", _PC_PATH_MAX);
+   size_t size;
+   if (path_max == -1)
+@@ -629,9 +633,15 @@
+       size = 10240;
+   else
+       size = path_max;
++#elif defined(PATH_MAX)
++  size_t size = PATH_MAX;
++#else
++  size_t size = 1024;
++#endif
+   for (char_ptr buf; p.empty(); size *= 2)
+     {
+-      buf.reset((char*)malloc(size));
++      using char_type = fs::path::value_type;
++      buf.reset((char_type*)malloc(size * sizeof(char_type)));
+       if (buf)
+ 	{
+ 	  if (getcwd(buf.get(), size))
+@@ -671,7 +681,7 @@
+ fs::current_path(const path& p, error_code& ec) noexcept
+ {
+ #ifdef _GLIBCXX_HAVE_UNISTD_H
+-  if (::chdir(p.c_str()))
++  if (posix::chdir(p.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -698,14 +708,14 @@
+   int err = 0;
+   file_status s1, s2;
+   stat_type st1, st2;
+-  if (::stat(p1.c_str(), &st1) == 0)
++  if (posix::stat(p1.c_str(), &st1) == 0)
+     s1 = make_file_status(st1);
+   else if (is_not_found_errno(errno))
+     s1.type(file_type::not_found);
+   else
+     err = errno;
+ 
+-  if (::stat(p2.c_str(), &st2) == 0)
++  if (posix::stat(p2.c_str(), &st2) == 0)
+     s2 = make_file_status(st2);
+   else if (is_not_found_errno(errno))
+     s2.type(file_type::not_found);
+@@ -755,7 +765,7 @@
+     {
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+       stat_type st;
+-      if (::stat(p.c_str(), &st))
++      if (posix::stat(p.c_str(), &st))
+ 	{
+ 	  ec.assign(errno, std::generic_category());
+ 	  return deflt;
+@@ -805,7 +815,7 @@
+ std::uintmax_t
+ fs::hard_link_count(const path& p, error_code& ec) noexcept
+ {
+-  return do_stat(p, ec, std::mem_fn(&stat::st_nlink),
++  return do_stat(p, ec, std::mem_fn(&stat_type::st_nlink),
+ 		 static_cast<uintmax_t>(-1));
+ }
+ 
+@@ -881,11 +891,11 @@
+   else
+     ec.clear();
+ #elif _GLIBCXX_HAVE_UTIME_H
+-  ::utimbuf times;
++  posix::utimbuf times;
+   times.modtime = s.count();
+   times.actime = do_stat(p, ec, [](const auto& st) { return st.st_atime; },
+ 			 times.modtime);
+-  if (::utime(p.c_str(), &times))
++  if (posix::utime(p.c_str(), &times))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -938,7 +948,7 @@
+ #else
+   if (nofollow && is_symlink(st))
+     ec = std::make_error_code(std::errc::operation_not_supported);
+-  else if (::chmod(p.c_str(), static_cast<mode_t>(prms)))
++  else if (posix::chmod(p.c_str(), static_cast<mode_t>(prms)))
+     err = errno;
+ #endif
+ 
+@@ -958,10 +968,10 @@
+   return tgt;
+ }
+ 
+-fs::path fs::read_symlink(const path& p, error_code& ec)
++fs::path fs::read_symlink(const path& p [[gnu::unused]], error_code& ec)
+ {
+   path result;
+-#ifdef _GLIBCXX_HAVE_SYS_STAT_H
++#if defined(_GLIBCXX_HAVE_READLINK) && defined(_GLIBCXX_HAVE_SYS_STAT_H)
+   stat_type st;
+   if (::lstat(p.c_str(), &st))
+     {
+@@ -1015,6 +1025,19 @@
+ bool
+ fs::remove(const path& p, error_code& ec) noexcept
+ {
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  if (exists(symlink_status(p, ec)))
++    {
++      if ((is_directory(p, ec) && RemoveDirectoryW(p.c_str()))
++	  || DeleteFileW(p.c_str()))
++	{
++	  ec.clear();
++	  return true;
++	}
++      else if (!ec)
++	ec.assign((int)GetLastError(), generic_category());
++    }
++#else
+   if (::remove(p.c_str()) == 0)
+     {
+       ec.clear();
+@@ -1024,6 +1047,7 @@
+     ec.clear();
+   else
+     ec.assign(errno, std::generic_category());
++#endif
+   return false;
+ }
+ 
+@@ -1077,7 +1101,7 @@
+ void
+ fs::rename(const path& from, const path& to, error_code& ec) noexcept
+ {
+-  if (::rename(from.c_str(), to.c_str()))
++  if (posix::rename(from.c_str(), to.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -1098,7 +1122,7 @@
+ #ifdef _GLIBCXX_HAVE_UNISTD_H
+   if (size > static_cast<uintmax_t>(std::numeric_limits<off_t>::max()))
+     ec.assign(EINVAL, std::generic_category());
+-  else if (::truncate(p.c_str(), size))
++  else if (posix::truncate(p.c_str(), size))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -1126,23 +1150,14 @@
+     static_cast<uintmax_t>(-1),
+     static_cast<uintmax_t>(-1)
+   };
+-#ifdef _GLIBCXX_HAVE_SYS_STATVFS_H
+-  struct ::statvfs f;
+-  if (::statvfs(p.c_str(), &f))
+-      ec.assign(errno, std::generic_category());
+-  else
+-    {
+-      uintmax_t fragment_size = f.f_frsize;
+-      info = space_info{
+-	f.f_blocks * fragment_size,
+-	f.f_bfree * fragment_size,
+-	f.f_bavail * fragment_size
+-      };
+-      ec.clear();
+-    }
++#if _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  path dir = absolute(p);
++  dir.remove_filename();
++  auto str = dir.c_str();
+ #else
+-  ec = std::make_error_code(std::errc::not_supported);
++  auto str = p.c_str();
+ #endif
++  std::filesystem::do_space(str, info.capacity, info.free, info.available, ec);
+   return info;
+ }
+ 
+@@ -1152,7 +1167,7 @@
+ {
+   file_status status;
+   stat_type st;
+-  if (::stat(p.c_str(), &st))
++  if (posix::stat(p.c_str(), &st))
+     {
+       int err = errno;
+       ec.assign(err, std::generic_category());
+@@ -1176,7 +1191,7 @@
+ {
+   file_status status;
+   stat_type st;
+-  if (::lstat(p.c_str(), &st))
++  if (posix::lstat(p.c_str(), &st))
+     {
+       int err = errno;
+       ec.assign(err, std::generic_category());
+@@ -1251,27 +1266,38 @@
+ 
+ fs::path fs::temp_directory_path(error_code& ec)
+ {
++  path p;
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-  ec = std::make_error_code(std::errc::not_supported);
+-  return {}; // TODO
++  unsigned len = 1024;
++  std::wstring buf;
++  do
++    {
++      buf.resize(len);
++      len = GetTempPathW(buf.size(), buf.data());
++    } while (len > buf.size());
++
++  if (len == 0)
++    {
++      ec.assign((int)GetLastError(), std::system_category());
++      return p;
++    }
++  buf.resize(len);
++  p = std::move(buf);
+ #else
+   const char* tmpdir = nullptr;
+   const char* env[] = { "TMPDIR", "TMP", "TEMP", "TEMPDIR", nullptr };
+   for (auto e = env; tmpdir == nullptr && *e != nullptr; ++e)
+     tmpdir = ::getenv(*e);
+-  path p = tmpdir ? tmpdir : "/tmp";
++  p = tmpdir ? tmpdir : "/tmp";
+   auto st = status(p, ec);
+-  if (!ec)
++  if (ec)
++    p.clear();
++  else if (!is_directory(st))
+     {
+-      if (is_directory(st))
+-	{
+-	  ec.clear();
+-	  return p;
+-	}
+-      else
+-	ec = std::make_error_code(std::errc::not_a_directory);
++      p.clear();
++      ec = std::make_error_code(std::errc::not_a_directory);
+     }
+-  return {};
+ #endif
++  return p;
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -61,6 +61,12 @@
+   return *this;
+ }
+ 
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++const fs::path::value_type dot = L'.';
++#else
++const fs::path::value_type dot = '.';
++#endif
++
+ path&
+ path::replace_extension(const path& replacement)
+ {
+@@ -78,8 +84,8 @@
+ 	  _M_pathname.erase(back._M_pos + ext.second);
+ 	}
+     }
+-  if (!replacement.empty() && replacement.native()[0] != '.')
+-    _M_pathname += '.';
++  if (!replacement.empty() && replacement.native()[0] != dot)
++    _M_pathname += dot;
+   _M_pathname += replacement.native();
+   _M_split_cmpts();
+   return *this;
+@@ -297,7 +303,7 @@
+ std::pair<const path::string_type*, std::size_t>
+ path::_M_find_extension() const
+ {
+-  const std::string* s = nullptr;
++  const string_type* s = nullptr;
+ 
+   if (_M_type != _Type::_Multi)
+     s = &_M_pathname;
+@@ -312,14 +318,14 @@
+     {
+       if (auto sz = s->size())
+ 	{
+-	  if (sz <= 2 && (*s)[0] == '.')
++	  if (sz <= 2 && (*s)[0] == dot)
+ 	    {
+-	      if (sz == 1 || (*s)[1] == '.')  // filename is "." or ".."
++	      if (sz == 1 || (*s)[1] == dot)  // filename is "." or ".."
+ 		return { s, string_type::npos };
+ 	      else
+ 		return { s, 0 };  // filename is like ".?"
+ 	    }
+-	  return { s, s->rfind('.') };
++	  return { s, s->rfind(dot) };
+ 	}
+     }
+   return {};
+@@ -405,7 +411,7 @@
+ 	{
+ 	  const auto& last = _M_cmpts.back();
+ 	  pos = last._M_pos + last._M_pathname.size();
+-	  _M_cmpts.emplace_back(string_type(1, '.'), _Type::_Filename, pos);
++	  _M_cmpts.emplace_back(string_type(1, dot), _Type::_Filename, pos);
+ 	}
+     }
+ 
+@@ -495,8 +501,8 @@
+   std::string filesystem_error::_M_gen_what()
+   {
+     using std::filesystem::fs_err_concat;
+-    return fs_err_concat(system_error::what(), _M_path1.native(),
+-			 _M_path2.native());
++    return fs_err_concat(system_error::what(), _M_path1.u8string(),
++			 _M_path2.u8string());
+   }
+ 
+ _GLIBCXX_END_NAMESPACE_CXX11
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-dir.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-dir.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-dir.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -37,6 +37,7 @@
+ #include "dir-common.h"
+ 
+ namespace fs = std::filesystem;
++namespace posix = std::filesystem::__gnu_posix;
+ 
+ struct fs::_Dir : _Dir_base
+ {
+@@ -47,7 +48,7 @@
+       path = p;
+   }
+ 
+-  _Dir(DIR* dirp, const path& p) : _Dir_base(dirp), path(p) { }
++  _Dir(posix::DIR* dirp, const path& p) : _Dir_base(dirp), path(p) { }
+ 
+   _Dir(_Dir&&) = default;
+ 
+@@ -180,7 +181,7 @@
+                              error_code* ecptr)
+ : _M_options(options), _M_pending(true)
+ {
+-  if (DIR* dirp = ::opendir(p.c_str()))
++  if (posix::DIR* dirp = posix::opendir(p.c_str()))
+     {
+       if (ecptr)
+ 	ecptr->clear();
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-ops.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -25,6 +25,7 @@
+ #ifndef _GLIBCXX_USE_CXX11_ABI
+ # define _GLIBCXX_USE_CXX11_ABI 1
+ # define NEED_DO_COPY_FILE
++# define NEED_DO_SPACE
+ #endif
+ 
+ #include <filesystem>
+@@ -52,19 +53,16 @@
+ #if !_GLIBCXX_USE_UTIMENSAT && _GLIBCXX_HAVE_UTIME_H
+ # include <utime.h> // utime
+ #endif
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++# include <windows.h>
++#endif
+ 
+ #define _GLIBCXX_BEGIN_NAMESPACE_FILESYSTEM namespace filesystem {
+ #define _GLIBCXX_END_NAMESPACE_FILESYSTEM }
+ #include "ops-common.h"
+ 
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-# undef utime
+-# define utime _wutime
+-# undef chmod
+-# define chmod _wchmod
+-#endif
+-
+ namespace fs = std::filesystem;
++namespace posix = std::filesystem::__gnu_posix;
+ 
+ fs::path
+ fs::absolute(const path& p)
+@@ -74,7 +72,7 @@
+   path ret = absolute(p, ec);
+   if (ec)
+     _GLIBCXX_THROW_OR_ABORT(filesystem_error("cannot make absolute path", p,
+-	std::make_error_code(errc::not_supported)));
++					     ec));
+   return ret;
+ #else
+   return current_path() / p;
+@@ -84,13 +82,37 @@
+ fs::path
+ fs::absolute(const path& p, error_code& ec)
+ {
++  path ret;
++  if (p.empty())
++    {
++      ec = make_error_code(std::errc::no_such_file_or_directory);
++      return ret;
++    }
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-  ec = std::make_error_code(errc::not_supported);
+-  return {};
++  const wstring& s = p.native();
++  uint32_t len = 1024;
++  wstring buf;
++  do
++    {
++      buf.resize(len);
++      len = GetFullPathNameW(s.c_str(), len, buf.data(), nullptr);
++    }
++  while (len > buf.size());
++
++  if (len == 0)
++    ec.assign((int)GetLastError(), std::system_category());
++  else
++    {
++      ec.clear();
++      buf.resize(len);
++      ret = std::move(buf);
++    }
+ #else
+   ec.clear();
+-  return current_path() / p;
++  ret = current_path();
++  ret /= p;
+ #endif
++  return ret;
+ }
+ 
+ namespace
+@@ -118,7 +140,7 @@
+     void operator()(void* p) const { ::free(p); }
+   };
+ 
+-  using char_ptr = std::unique_ptr<char[], free_as_in_malloc>;
++  using char_ptr = std::unique_ptr<fs::path::value_type[], free_as_in_malloc>;
+ }
+ 
+ fs::path
+@@ -133,7 +155,8 @@
+   char_ptr buf{ nullptr };
+ # if _XOPEN_VERSION < 700
+   // Not safe to call realpath(path, NULL)
+-  buf.reset( (char*)::malloc(PATH_MAX) );
++  using char_type = fs::path::value_type;
++  buf.reset( (char_type*)::malloc(PATH_MAX * sizeof(char_type)) );
+ # endif
+   if (char* rp = ::realpath(pa.c_str(), buf.get()))
+     {
+@@ -254,7 +277,7 @@
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+ #ifdef NEED_DO_COPY_FILE
+ bool
+-fs::do_copy_file(const char* from, const char* to,
++fs::do_copy_file(const path::value_type* from, const path::value_type* to,
+ 		 copy_options_existing_file options,
+ 		 stat_type* from_st, stat_type* to_st,
+ 		 std::error_code& ec) noexcept
+@@ -264,7 +287,7 @@
+ 
+   if (to_st == nullptr)
+     {
+-      if (::stat(to, &st1))
++      if (posix::stat(to, &st1))
+ 	{
+ 	  const int err = errno;
+ 	  if (!is_not_found_errno(err))
+@@ -286,7 +309,7 @@
+ 
+   if (from_st == nullptr)
+     {
+-      if (::stat(from, &st2))
++      if (posix::stat(from, &st2))
+ 	{
+ 	  ec.assign(errno, std::generic_category());
+ 	  return false;
+@@ -344,12 +367,12 @@
+     }
+ 
+   struct CloseFD {
+-    ~CloseFD() { if (fd != -1) ::close(fd); }
+-    bool close() { return ::close(std::exchange(fd, -1)) == 0; }
++    ~CloseFD() { if (fd != -1) posix::close(fd); }
++    bool close() { return posix::close(std::exchange(fd, -1)) == 0; }
+     int fd;
+   };
+ 
+-  CloseFD in = { ::open(from, O_RDONLY) };
++  CloseFD in = { posix::open(from, O_RDONLY) };
+   if (in.fd == -1)
+     {
+       ec.assign(errno, std::generic_category());
+@@ -360,7 +383,7 @@
+     oflag |= O_TRUNC;
+   else
+     oflag |= O_EXCL;
+-  CloseFD out = { ::open(to, oflag, S_IWUSR) };
++  CloseFD out = { posix::open(to, oflag, S_IWUSR) };
+   if (out.fd == -1)
+     {
+       if (errno == EEXIST && options.skip)
+@@ -370,12 +393,12 @@
+       return false;
+     }
+ 
+-#ifdef _GLIBCXX_USE_FCHMOD
++#if defined _GLIBCXX_USE_FCHMOD && ! defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
+   if (::fchmod(out.fd, from_st->st_mode))
+-#elif defined _GLIBCXX_USE_FCHMODAT
++#elif defined _GLIBCXX_USE_FCHMODAT && ! defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
+   if (::fchmodat(AT_FDCWD, to, from_st->st_mode, 0))
+ #else
+-  if (::chmod(to, from_st->st_mode))
++  if (posix::chmod(to, from_st->st_mode))
+ #endif
+     {
+       ec.assign(errno, std::generic_category());
+@@ -383,7 +406,7 @@
+     }
+ 
+   size_t count = from_st->st_size;
+-#ifdef _GLIBCXX_USE_SENDFILE
++#if defined _GLIBCXX_USE_SENDFILE && ! defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
+   off_t offset = 0;
+   ssize_t n = ::sendfile(out.fd, in.fd, &offset, count);
+   if (n < 0 && errno != ENOSYS && errno != EINVAL)
+@@ -462,15 +485,15 @@
+   // _GLIBCXX_RESOLVE_LIB_DEFECTS
+   // 2681. filesystem::copy() cannot copy symlinks
+   if (use_lstat || copy_symlinks
+-      ? ::lstat(from.c_str(), &from_st)
+-      : ::stat(from.c_str(), &from_st))
++      ? posix::lstat(from.c_str(), &from_st)
++      : posix::stat(from.c_str(), &from_st))
+     {
+       ec.assign(errno, std::generic_category());
+       return;
+     }
+   if (use_lstat
+-      ? ::lstat(to.c_str(), &to_st)
+-      : ::stat(to.c_str(), &to_st))
++      ? posix::lstat(to.c_str(), &to_st)
++      : posix::stat(to.c_str(), &to_st))
+     {
+       if (!is_not_found_errno(errno))
+ 	{
+@@ -664,8 +687,9 @@
+   {
+     bool created = false;
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+-    ::mode_t mode = static_cast<std::underlying_type_t<fs::perms>>(perm);
+-    if (::mkdir(p.c_str(), mode))
++    posix::mode_t mode
++      = static_cast<std::underlying_type_t<fs::perms>>(perm);
++    if (posix::mkdir(p.c_str(), mode))
+       {
+ 	const int err = errno;
+ 	if (err != EEXIST || !is_directory(p, ec))
+@@ -718,7 +742,7 @@
+ {
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+   stat_type st;
+-  if (::stat(attributes.c_str(), &st))
++  if (posix::stat(attributes.c_str(), &st))
+     {
+       ec.assign(errno, std::generic_category());
+       return false;
+@@ -760,18 +784,23 @@
+   create_hard_link(to, new_hard_link, ec);
+   if (ec)
+     _GLIBCXX_THROW_OR_ABORT(filesystem_error("cannot create hard link",
+-	  to, new_hard_link, ec));
++					     to, new_hard_link, ec));
+ }
+ 
+ void
+ fs::create_hard_link(const path& to, const path& new_hard_link,
+ 		     error_code& ec) noexcept
+ {
+-#ifdef _GLIBCXX_HAVE_UNISTD_H
++#ifdef _GLIBCXX_HAVE_LINK
+   if (::link(to.c_str(), new_hard_link.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
++#elif defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  if (CreateHardLinkW(new_hard_link.c_str(), to.c_str(), NULL))
++    ec.clear();
++  else
++    ec.assign((int)GetLastError(), generic_category());
+ #else
+   ec = std::make_error_code(std::errc::not_supported);
+ #endif
+@@ -791,7 +820,7 @@
+ fs::create_symlink(const path& to, const path& new_symlink,
+ 		   error_code& ec) noexcept
+ {
+-#ifdef _GLIBCXX_HAVE_UNISTD_H
++#ifdef _GLIBCXX_HAVE_SYMLINK
+   if (::symlink(to.c_str(), new_symlink.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+@@ -817,8 +846,8 @@
+ {
+   path p;
+ #ifdef _GLIBCXX_HAVE_UNISTD_H
+-#ifdef __GLIBC__
+-  if (char_ptr cwd = char_ptr{::getcwd(nullptr, 0)})
++#if defined __GLIBC__ || defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  if (char_ptr cwd = char_ptr{posix::getcwd(nullptr, 0)})
+     {
+       p.assign(cwd.get());
+       ec.clear();
+@@ -826,6 +855,7 @@
+   else
+     ec.assign(errno, std::generic_category());
+ #else
++#ifdef _PC_PATH_MAX
+   long path_max = pathconf(".", _PC_PATH_MAX);
+   size_t size;
+   if (path_max == -1)
+@@ -834,9 +864,15 @@
+       size = 10240;
+   else
+       size = path_max;
++#elif defined(PATH_MAX)
++  size_t size = PATH_MAX;
++#else
++  size_t size = 1024;
++#endif
+   for (char_ptr buf; p.empty(); size *= 2)
+     {
+-      buf.reset((char*)malloc(size));
++      using char_type = fs::path::value_type;
++      buf.reset((char_type*)malloc(size * sizeof(char_type)));
+       if (buf)
+ 	{
+ 	  if (getcwd(buf.get(), size))
+@@ -876,7 +912,7 @@
+ fs::current_path(const path& p, error_code& ec) noexcept
+ {
+ #ifdef _GLIBCXX_HAVE_UNISTD_H
+-  if (::chdir(p.c_str()))
++  if (posix::chdir(p.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -903,14 +939,14 @@
+   int err = 0;
+   file_status s1, s2;
+   stat_type st1, st2;
+-  if (::stat(p1.c_str(), &st1) == 0)
++  if (posix::stat(p1.c_str(), &st1) == 0)
+     s1 = make_file_status(st1);
+   else if (is_not_found_errno(errno))
+     s1.type(file_type::not_found);
+   else
+     err = errno;
+ 
+-  if (::stat(p2.c_str(), &st2) == 0)
++  if (posix::stat(p2.c_str(), &st2) == 0)
+     s2 = make_file_status(st2);
+   else if (is_not_found_errno(errno))
+     s2.type(file_type::not_found);
+@@ -959,8 +995,8 @@
+     do_stat(const fs::path& p, std::error_code& ec, Accessor f, T deflt)
+     {
+ #ifdef _GLIBCXX_HAVE_SYS_STAT_H
+-      fs::stat_type st;
+-      if (::stat(p.c_str(), &st))
++      posix::stat_type st;
++      if (posix::stat(p.c_str(), &st))
+ 	{
+ 	  ec.assign(errno, std::generic_category());
+ 	  return deflt;
+@@ -1010,7 +1046,7 @@
+ std::uintmax_t
+ fs::hard_link_count(const path& p, error_code& ec) noexcept
+ {
+-  return do_stat(p, ec, std::mem_fn(&stat::st_nlink),
++  return do_stat(p, ec, std::mem_fn(&stat_type::st_nlink),
+ 		 static_cast<uintmax_t>(-1));
+ }
+ 
+@@ -1086,11 +1122,11 @@
+   else
+     ec.clear();
+ #elif _GLIBCXX_HAVE_UTIME_H
+-  ::utimbuf times;
++  posix::utimbuf times;
+   times.modtime = s.count();
+   times.actime = do_stat(p, ec, [](const auto& st) { return st.st_atime; },
+ 			 times.modtime);
+-  if (::utime(p.c_str(), &times))
++  if (posix::utime(p.c_str(), &times))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -1145,7 +1181,7 @@
+ #else
+   if (nofollow && is_symlink(st))
+     ec = std::make_error_code(std::errc::operation_not_supported);
+-  else if (::chmod(p.c_str(), static_cast<mode_t>(prms)))
++  else if (posix::chmod(p.c_str(), static_cast<mode_t>(prms)))
+     err = errno;
+ #endif
+ 
+@@ -1185,10 +1221,10 @@
+   return tgt;
+ }
+ 
+-fs::path fs::read_symlink(const path& p, error_code& ec)
++fs::path fs::read_symlink(const path& p [[gnu::unused]], error_code& ec)
+ {
+   path result;
+-#ifdef _GLIBCXX_HAVE_SYS_STAT_H
++#if defined(_GLIBCXX_HAVE_READLINK) && defined(_GLIBCXX_HAVE_SYS_STAT_H)
+   stat_type st;
+   if (::lstat(p.c_str(), &st))
+     {
+@@ -1261,6 +1297,19 @@
+ bool
+ fs::remove(const path& p, error_code& ec) noexcept
+ {
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  if (exists(symlink_status(p, ec)))
++    {
++      if ((is_directory(p, ec) && RemoveDirectoryW(p.c_str()))
++	  || DeleteFileW(p.c_str()))
++	{
++	  ec.clear();
++	  return true;
++	}
++      else if (!ec)
++	ec.assign((int)GetLastError(), generic_category());
++    }
++#else
+   if (::remove(p.c_str()) == 0)
+     {
+       ec.clear();
+@@ -1270,6 +1319,7 @@
+     ec.clear();
+   else
+     ec.assign(errno, std::generic_category());
++#endif
+   return false;
+ }
+ 
+@@ -1323,7 +1373,7 @@
+ void
+ fs::rename(const path& from, const path& to, error_code& ec) noexcept
+ {
+-  if (::rename(from.c_str(), to.c_str()))
++  if (posix::rename(from.c_str(), to.c_str()))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -1344,7 +1394,7 @@
+ #ifdef _GLIBCXX_HAVE_UNISTD_H
+   if (size > static_cast<uintmax_t>(std::numeric_limits<off_t>::max()))
+     ec.assign(EINVAL, std::generic_category());
+-  else if (::truncate(p.c_str(), size))
++  else if (posix::truncate(p.c_str(), size))
+     ec.assign(errno, std::generic_category());
+   else
+     ec.clear();
+@@ -1364,31 +1414,67 @@
+   return s;
+ }
+ 
+-fs::space_info
+-fs::space(const path& p, error_code& ec) noexcept
++#ifdef NEED_DO_SPACE
++void
++fs::do_space(const __gnu_posix::char_type* pathname,
++	 uintmax_t& capacity, uintmax_t& free, uintmax_t& available,
++	 std::error_code& ec)
+ {
+-  space_info info = {
+-    static_cast<uintmax_t>(-1),
+-    static_cast<uintmax_t>(-1),
+-    static_cast<uintmax_t>(-1)
+-  };
+ #ifdef _GLIBCXX_HAVE_SYS_STATVFS_H
+   struct ::statvfs f;
+-  if (::statvfs(p.c_str(), &f))
++  if (::statvfs(pathname, &f))
+       ec.assign(errno, std::generic_category());
+   else
+     {
+-      uintmax_t fragment_size = f.f_frsize;
+-      info = space_info{
+-	f.f_blocks * fragment_size,
+-	f.f_bfree * fragment_size,
+-	f.f_bavail * fragment_size
+-      };
++      if (f.f_frsize != (unsigned long)-1)
++	{
++	  const uintmax_t fragment_size = f.f_frsize;
++	  const fsblkcnt_t unknown = -1;
++	  if (f.f_blocks != unknown)
++	    capacity = f.f_blocks * fragment_size;
++	  if (f.f_bfree != unknown)
++	    free = f.f_bfree * fragment_size;
++	  if (f.f_bavail != unknown)
++	    available = f.f_bavail * fragment_size;
++	}
++      ec.clear();
++    }
++#elif _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  ULARGE_INTEGER bytes_avail = {}, bytes_total = {}, bytes_free = {};
++  if (GetDiskFreeSpaceExW(pathname, &bytes_avail, &bytes_total, &bytes_free))
++    {
++      if (bytes_total.QuadPart != 0)
++	capacity = bytes_total.QuadPart;
++      if (bytes_free.QuadPart != 0)
++	free = bytes_free.QuadPart;
++      if (bytes_avail.QuadPart != 0)
++	available = bytes_avail.QuadPart;
+       ec.clear();
+     }
++  else
++    ec.assign((int)GetLastError(), std::system_category());
+ #else
+   ec = std::make_error_code(std::errc::not_supported);
+ #endif
++}
++#endif // NEED_DO_SPACE
++
++fs::space_info
++fs::space(const path& p, error_code& ec) noexcept
++{
++  space_info info = {
++    static_cast<uintmax_t>(-1),
++    static_cast<uintmax_t>(-1),
++    static_cast<uintmax_t>(-1)
++  };
++#if _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  path dir = absolute(p);
++  dir.remove_filename();
++  auto str = dir.c_str();
++#else
++  auto str = p.c_str();
++#endif
++  do_space(str, info.capacity, info.free, info.available, ec);
+   return info;
+ }
+ 
+@@ -1398,7 +1484,7 @@
+ {
+   file_status status;
+   stat_type st;
+-  if (::stat(p.c_str(), &st))
++  if (posix::stat(p.c_str(), &st))
+     {
+       int err = errno;
+       ec.assign(err, std::generic_category());
+@@ -1422,7 +1508,7 @@
+ {
+   file_status status;
+   stat_type st;
+-  if (::lstat(p.c_str(), &st))
++  if (posix::lstat(p.c_str(), &st))
+     {
+       int err = errno;
+       ec.assign(err, std::generic_category());
+@@ -1469,28 +1555,39 @@
+ 
+ fs::path fs::temp_directory_path(error_code& ec)
+ {
++  path p;
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-  ec = std::make_error_code(std::errc::not_supported);
+-  return {}; // TODO
++  unsigned len = 1024;
++  std::wstring buf;
++  do
++    {
++      buf.resize(len);
++      len = GetTempPathW(buf.size(), buf.data());
++    } while (len > buf.size());
++
++  if (len == 0)
++    {
++      ec.assign((int)GetLastError(), std::system_category());
++      return p;
++    }
++  buf.resize(len);
++  p = std::move(buf);
+ #else
+   const char* tmpdir = nullptr;
+   const char* env[] = { "TMPDIR", "TMP", "TEMP", "TEMPDIR", nullptr };
+   for (auto e = env; tmpdir == nullptr && *e != nullptr; ++e)
+     tmpdir = ::getenv(*e);
+-  path p = tmpdir ? tmpdir : "/tmp";
++  p = tmpdir ? tmpdir : "/tmp";
++#endif
+   auto st = status(p, ec);
+-  if (!ec)
++  if (ec)
++    p.clear();
++  else if (!is_directory(st))
+     {
+-      if (is_directory(st))
+-	{
+-	  ec.clear();
+-	  return p;
+-	}
+-      else
+-	ec = std::make_error_code(std::errc::not_a_directory);
++      p.clear();
++      ec = std::make_error_code(std::errc::not_a_directory);
+     }
+-  return {};
+-#endif
++  return p;
+ }
+ 
+ fs::path
+Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -38,6 +38,66 @@
+ 
+ constexpr path::value_type path::preferred_separator;
+ 
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++path&
++path::operator/=(const path& __p)
++{
++  if (__p.is_absolute()
++      || (__p.has_root_name() && __p.root_name() != root_name()))
++    return operator=(__p);
++
++  basic_string_view<value_type> __lhs = _M_pathname;
++  bool __add_sep = false;
++
++  if (__p.has_root_directory())
++    {
++      // Remove any root directory and relative path
++      if (_M_type != _Type::_Root_name)
++	{
++	  if (!_M_cmpts.empty()
++	      && _M_cmpts.front()._M_type == _Type::_Root_name)
++	    __lhs = _M_cmpts.front()._M_pathname;
++	  else
++	    __lhs = {};
++	}
++    }
++  else if (has_filename() || (!has_root_directory() && is_absolute()))
++    __add_sep = true;
++
++  basic_string_view<value_type> __rhs = __p._M_pathname;
++  // Omit any root-name from the generic format pathname:
++  if (__p._M_type == _Type::_Root_name)
++    __rhs = {};
++  else if (!__p._M_cmpts.empty()
++      && __p._M_cmpts.front()._M_type == _Type::_Root_name)
++    __rhs.remove_prefix(__p._M_cmpts.front()._M_pathname.size());
++
++  const size_t __len = __lhs.size() + (int)__add_sep + __rhs.size();
++  const size_t __maxcmpts = _M_cmpts.size() + __p._M_cmpts.size();
++  if (_M_pathname.capacity() < __len || _M_cmpts.capacity() < __maxcmpts)
++    {
++      // Construct new path and swap (strong exception-safety guarantee).
++      string_type __tmp;
++      __tmp.reserve(__len);
++      __tmp = __lhs;
++      if (__add_sep)
++	__tmp += preferred_separator;
++      __tmp += __rhs;
++      path __newp = std::move(__tmp);
++      swap(__newp);
++    }
++  else
++    {
++      _M_pathname = __lhs;
++      if (__add_sep)
++	_M_pathname += preferred_separator;
++      _M_pathname += __rhs;
++      _M_split_cmpts();
++    }
++  return *this;
++}
++#endif
++
+ path&
+ path::remove_filename()
+ {
+@@ -74,6 +134,12 @@
+   return *this;
+ }
+ 
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++const fs::path::value_type dot = L'.';
++#else
++const fs::path::value_type dot = '.';
++#endif
++
+ path&
+ path::replace_extension(const path& replacement)
+ {
+@@ -94,8 +160,8 @@
+     }
+    // If replacement is not empty and does not begin with a dot character,
+    // a dot character is appended
+-  if (!replacement.empty() && replacement.native()[0] != '.')
+-    _M_pathname += '.';
++  if (!replacement.empty() && replacement.native()[0] != dot)
++    _M_pathname += dot;
+   operator+=(replacement);
+   return *this;
+ }
+@@ -332,11 +398,7 @@
+ 
+ namespace
+ {
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-  inline bool is_dot(wchar_t c) { return c == L'.'; }
+-#else
+-  inline bool is_dot(char c) { return c == '.'; }
+-#endif
++  inline bool is_dot(fs::path::value_type c) { return c == dot; }
+ 
+   inline bool is_dot(const fs::path& path)
+   {
+@@ -501,7 +563,7 @@
+ std::pair<const path::string_type*, std::size_t>
+ path::_M_find_extension() const
+ {
+-  const std::string* s = nullptr;
++  const string_type* s = nullptr;
+ 
+   if (_M_type == _Type::_Filename)
+     s = &_M_pathname;
+@@ -516,9 +578,9 @@
+     {
+       if (auto sz = s->size())
+ 	{
+-	  if (sz <= 2 && (*s)[0] == '.')
++	  if (sz <= 2 && (*s)[0] == dot)
+ 	    return { s, string_type::npos };
+-	  const auto pos = s->rfind('.');
++	  const auto pos = s->rfind(dot);
+ 	  return { s, pos ? pos : string_type::npos };
+ 	}
+     }
+@@ -719,8 +781,8 @@
+ 
+   std::string filesystem_error::_M_gen_what()
+   {
+-    return fs_err_concat(system_error::what(), _M_path1.native(),
+-			 _M_path2.native());
++    return fs_err_concat(system_error::what(), _M_path1.u8string(),
++			 _M_path2.u8string());
+   }
+ 
+ _GLIBCXX_END_NAMESPACE_CXX11
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -47,16 +47,17 @@
+ 
+   // Test non-empty directory.
+   ec = bad_ec;
+-  create_directory_symlink(p, p / "l", ec);
++  create_directory(p / "x", ec);
+   VERIFY( !ec );
+   ec = bad_ec;
+   iter = fs::directory_iterator(p, ec);
+   VERIFY( !ec );
+   VERIFY( iter != fs::directory_iterator() );
+-  VERIFY( iter->path() == p/"l" );
++  VERIFY( iter->path() == p/"x" );
+   ++iter;
+   VERIFY( iter == end(iter) );
+ 
++#if !(defined(__MINGW32__) || defined(__MINGW64__))
+   // Test inaccessible directory.
+   ec = bad_ec;
+   permissions(p, fs::perms::none, ec);
+@@ -71,6 +72,7 @@
+   iter = fs::directory_iterator(p, opts, ec);
+   VERIFY( !ec );
+   VERIFY( iter == end(iter) );
++#endif
+ 
+   permissions(p, fs::perms::owner_all, ec);
+   remove_all(p, ec);
+@@ -84,7 +86,7 @@
+   const auto p = __gnu_test::nonexistent_path();
+   ec = bad_ec;
+   create_directory(p, fs::current_path(), ec);
+-  create_directory_symlink(p, p / "l", ec);
++  create_directory(p / "x", ec);
+   VERIFY( !ec );
+ 
+   // Test post-increment (libstdc++/71005)
+@@ -95,7 +97,7 @@
+   const auto entry1 = *iter;
+   const auto entry2 = *iter++;
+   VERIFY( entry1 == entry2 );
+-  VERIFY( entry1.path() == p/"l" );
++  VERIFY( entry1.path() == p/"x" );
+   VERIFY( iter == end(iter) );
+ 
+   remove_all(p, ec);
+@@ -130,7 +132,7 @@
+ {
+   auto p = __gnu_test::nonexistent_path();
+   create_directory(p);
+-  create_directory_symlink(p, p / "l");
++  create_directory(p / "x");
+   fs::directory_iterator it(p), endit;
+   VERIFY( begin(it) == it );
+   static_assert( noexcept(begin(it)), "begin is noexcept" );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -60,6 +60,7 @@
+   ++iter;
+   VERIFY( iter == end(iter) );
+ 
++#if ! (defined (__MINGW32__) || defined(__MINGW64__))
+   // Test inaccessible directory.
+   ec = bad_ec;
+   permissions(p, fs::perms::none, ec);
+@@ -106,6 +107,7 @@
+   iter.increment(ec);  // should fail to recurse into p/d1/d2, so skip it
+   VERIFY( !ec );
+   VERIFY( iter == end(iter) );
++#endif
+ 
+   permissions(p/"d1/d2", fs::perms::owner_all, ec);
+   remove_all(p, ec);
+@@ -171,7 +173,7 @@
+ {
+   auto p = __gnu_test::nonexistent_path();
+   create_directory(p);
+-  create_directory_symlink(p, p / "l");
++  create_directory(p / "x");
+   fs::recursive_directory_iterator it(p), endit;
+   VERIFY( begin(it) == it );
+   static_assert( noexcept(begin(it)), "begin is noexcept" );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -37,6 +37,22 @@
+ void
+ test02()
+ {
++  std::error_code ec = make_error_code(std::errc::invalid_argument);
++  path root = __gnu_test::root_path();
++  VERIFY( absolute(root) == root );
++  VERIFY( absolute(root, ec) == root && !ec );
++  VERIFY( absolute(path{}, ec).empty() && ec );
++
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  path p1("/");
++  VERIFY( absolute(p1) != p1 );
++  path p2("/foo");
++  VERIFY( absolute(p2) != p2 );
++  path p3("foo");
++  VERIFY( absolute(p3) != p3 );
++  path p4("C:\\");
++  VERIFY( absolute(p4) == p4 );
++#else
+   path p1("/");
+   VERIFY( absolute(p1) == p1 );
+   path p2("/foo");
+@@ -44,6 +60,7 @@
+   path p3("foo");
+   VERIFY( absolute(p3) != p3 );
+   VERIFY( absolute(p3) == (std::filesystem::current_path()/p3) );
++#endif
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -42,7 +42,7 @@
+   VERIFY( !ec );
+ 
+   ec = bad_ec;
+-  p2 = canonical( fs::current_path() / "." / (p.native() + "////././."), ec );
++  p2 = canonical( fs::current_path() / "." / (p.string() + "////././."), ec );
+   compare_paths( p2, fs::current_path()/p );
+   VERIFY( !ec );
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -116,7 +116,7 @@
+   auto to = __gnu_test::nonexistent_path();
+ 
+   // test empty file
+-  std::ofstream{from.native()};
++  std::ofstream{from};
+   VERIFY( fs::exists(from) );
+   VERIFY( fs::file_size(from) == 0 );
+   fs::copy(from, to);
+@@ -125,7 +125,7 @@
+ 
+   remove(to);
+   VERIFY( !fs::exists(to) );
+-  std::ofstream{from.native()} << "Hello, filesystem!";
++  std::ofstream{from} << "Hello, filesystem!";
+   VERIFY( fs::file_size(from) != 0 );
+   fs::copy(from, to);
+   VERIFY( fs::exists(to) );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -42,7 +42,7 @@
+   VERIFY( !exists(to) );
+ 
+   // test empty file
+-  std::ofstream{from.native()};
++  std::ofstream{from};
+   VERIFY( exists(from) );
+   VERIFY( file_size(from) == 0 );
+ 
+@@ -58,7 +58,7 @@
+   VERIFY( exists(to) );
+   VERIFY( file_size(to) == 0 );
+ 
+-  std::ofstream{from.native()} << "Hello, filesystem!";
++  std::ofstream{from} << "Hello, filesystem!";
+   VERIFY( file_size(from) != 0 );
+   remove(to);
+   VERIFY( !exists(to) );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -29,19 +29,20 @@
+ test01()
+ {
+   const std::error_code bad_ec = make_error_code(std::errc::invalid_argument);
++  const path root = __gnu_test::root_path();
+ 
+-  VERIFY( exists(path{"/"}) );
+-  VERIFY( exists(path{"/."}) );
++  VERIFY( exists(root) );
++  VERIFY( exists(root/".") );
+   VERIFY( exists(path{"."}) );
+   VERIFY( exists(path{".."}) );
+   VERIFY( exists(std::filesystem::current_path()) );
+ 
+   std::error_code ec;
+   ec = bad_ec;
+-  VERIFY( exists(path{"/"}, ec) );
++  VERIFY( exists(root, ec) );
+   VERIFY( !ec );
+   ec = bad_ec;
+-  VERIFY( exists(path{"/."}, ec) );
++  VERIFY( exists(root/".", ec) );
+   VERIFY( !ec );
+   ec = bad_ec;
+   VERIFY( exists(path{"."}, ec) );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -82,7 +82,7 @@
+   empty = is_empty(f.path);
+   VERIFY( empty );
+ 
+-  std::ofstream{f.path.native()} << "data";
++  std::ofstream{f.path} << "data";
+   ec = bad_ec;
+   empty = is_empty(p, ec);
+   VERIFY( !ec );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -81,7 +81,7 @@
+   ::utimbuf times;
+   times.modtime = std::numeric_limits<std::time_t>::max() - 1;
+   times.actime = std::numeric_limits<std::time_t>::max() - 1;
+-  VERIFY( !::utime(p.c_str(), &times) );
++  VERIFY( !::utime(p.string().c_str(), &times) );
+ #else
+   return;
+ #endif
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -25,25 +25,35 @@
+ #include <testsuite_fs.h>
+ #include <testsuite_hooks.h>
+ 
++bool check(std::filesystem::space_info const& s)
++{
++  const std::uintmax_t err = -1;
++  return s.capacity != err || s.free != err || s.available != err;
++}
++
+ void
+ test01()
+ {
+-  std::filesystem::space_info s = std::filesystem::space("/");
++  const std::filesystem::path root = __gnu_test::root_path();
++  std::filesystem::space_info s = std::filesystem::space(root);
+   std::error_code ec = make_error_code(std::errc::invalid_argument);
+-  s = std::filesystem::space("/", ec);
++  s = std::filesystem::space(root, ec);
+   VERIFY( !ec );
++  VERIFY( check(s) );
++  VERIFY( s.capacity >= s.free );
+ 
+-  s = std::filesystem::space(__gnu_test::nonexistent_path(), ec);
+-  VERIFY( ec );
+-  VERIFY( s.capacity ==  static_cast<uintmax_t>(-1) );
+-  VERIFY( s.free ==  static_cast<uintmax_t>(-1) );
+-  VERIFY( s.available ==  static_cast<uintmax_t>(-1) );
++  s = std::filesystem::space(__gnu_test::nonexistent_path()/".", ec);
++  if (ec)
++    VERIFY( ! check(s) );
++  else
++    VERIFY( check(s) );
+ }
+ 
+ void
+ test02()
+ {
+   std::filesystem::space_info s = std::filesystem::space(".");
++  VERIFY( check(s) );
+   VERIFY( s.capacity >= s.free );
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -27,10 +27,28 @@
+ void
+ clean_env()
+ {
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  ::_putenv("TMP=");
++  ::_putenv("TEMP=");
++#else
+   ::unsetenv("TMPDIR");
+   ::unsetenv("TMP");
+   ::unsetenv("TEMPDIR");
+   ::unsetenv("TEMP");
++#endif
++}
++
++bool
++set_env(const char* name, std::string value)
++{
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  std::string s = name;
++  s += '=';
++  s += value;
++  return !::_putenv(s.c_str());
++#else
++  return !::setenv(name, value.c_str(), 1);
++#endif
+ }
+ 
+ namespace fs = std::filesystem;
+@@ -57,7 +75,7 @@
+ {
+   clean_env();
+ 
+-  if (::setenv("TMPDIR", __gnu_test::nonexistent_path().string().c_str(), 1))
++  if (!set_env("TMPDIR", __gnu_test::nonexistent_path().string()))
+     return; // just give up
+ 
+   std::error_code ec;
+@@ -80,7 +98,7 @@
+   auto p = __gnu_test::nonexistent_path();
+   create_directories(p/"tmp");
+   permissions(p, fs::perms::none);
+-  setenv("TMPDIR", (p/"tmp").c_str(), 1);
++  set_env("TMPDIR", (p/"tmp").string());
+   std::error_code ec;
+   auto r = fs::temp_directory_path(ec); // libstdc++/PR71337
+   VERIFY( ec == std::make_error_code(std::errc::permission_denied) );
+@@ -102,7 +120,7 @@
+ test04()
+ {
+   __gnu_test::scoped_file f;
+-  setenv("TMPDIR", f.path.c_str(), 1);
++  set_env("TMPDIR", f.path.string());
+   std::error_code ec;
+   auto r = fs::temp_directory_path(ec);
+   VERIFY( ec == std::make_error_code(std::errc::not_a_directory) );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -55,6 +55,10 @@
+ 
+   compare_paths( append("dir/", "/file"), "/file" );
+   compare_paths( append("dir/", "file"),  "dir/file" );
++
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  compare_paths( append("c:/foo", "/bar"),  "c:/bar" );
++#endif
+ }
+ 
+ void
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -31,7 +31,11 @@
+ test01()
+ {
+   path p("/foo/bar", std::locale::classic());
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  VERIFY( p.native() == L"/foo/bar" );
++#else
+   VERIFY( p.native() == "/foo/bar" );
++#endif
+ }
+ 
+ void
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -47,7 +47,12 @@
+   {
+     path rootdir = p.root_directory();
+     VERIFY( !rootdir.has_relative_path() );
+-    VERIFY( rootdir.empty() || rootdir.native() == "/");
++    if (!rootdir.empty())
++#if defined(__MINGW32__) || defined(__MINGW64__)
++      VERIFY( rootdir.string() == "/" || rootdir.string() == "\\" );
++#else
++      VERIFY( rootdir.string() == "/" );
++#endif
+   }
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -35,7 +35,7 @@
+   path p = "foo.bar.baz.tar";
+   std::vector<std::string> v;
+   for (; !p.extension().empty(); p = p.stem())
+-    v.push_back(p.extension().native());
++    v.push_back(p.extension().string());
+   VERIFY( v.at(0) == ".tar" );
+   VERIFY( v.at(1) == ".baz" );
+   VERIFY( v.at(2) == ".bar" );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -83,6 +83,24 @@
+   v2 = { "/", "rootname", "dir", "filename" };
+ #endif
+   VERIFY( v == v2 );
++
++  p = "c:relative/path";
++  v.assign(p.begin(), p.end());
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  v2 = { "c:", "relative", "path" };
++#else
++  v2 = { "c:relative", "path" };
++#endif
++  VERIFY( v == v2 );
++
++  p = "c:/absolute/path";
++  v.assign(p.begin(), p.end());
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  v2 = { "c:", "/", "absolute", "path" };
++#else
++  v2 = { "c:", "absolute", "path" };
++#endif
++  VERIFY( v == v2 );
+ }
+ 
+ void
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -27,14 +27,15 @@
+ test01()
+ {
+   using namespace std::filesystem;
+-  const std::string s = "abc";
++  using string_type = std::basic_string<path::value_type>;
++  const string_type s{ 'a', 'b', 'c' };
+   path p(s);
+ 
+   VERIFY( p.native() == s );
+   VERIFY( p.c_str() == s );
+-  VERIFY( static_cast<std::string>(p) == s );
++  VERIFY( static_cast<string_type>(p) == s );
+ 
+-  std::string s2 = p; // implicit conversion
++  string_type s2 = p; // implicit conversion
+   VERIFY( s2 == p.native() );
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -29,11 +29,17 @@
+ void
+ test01()
+ {
+-  VERIFY( path("/").is_absolute() );
+-  VERIFY( path("/foo").is_absolute() );
+-  VERIFY( path("/foo/").is_absolute() );
+-  VERIFY( path("/foo/bar").is_absolute() );
+-  VERIFY( path("/foo/bar/").is_absolute() );
++#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  const bool is_posix = false;
++#else
++  const bool is_posix = true;
++#endif
++
++  VERIFY( path("/").is_absolute() == is_posix );
++  VERIFY( path("/foo").is_absolute() == is_posix );
++  VERIFY( path("/foo/").is_absolute() == is_posix );
++  VERIFY( path("/foo/bar").is_absolute() == is_posix );
++  VERIFY( path("/foo/bar/").is_absolute() == is_posix );
+   VERIFY( ! path("foo").is_absolute() );
+   VERIFY( ! path("foo/").is_absolute() );
+   VERIFY( ! path("foo/bar").is_absolute() );
+@@ -43,16 +49,11 @@
+   VERIFY( ! path("c:foo/").is_absolute() );
+   VERIFY( ! path("c:foo/bar").is_absolute() );
+   VERIFY( ! path("c:foo/bar/").is_absolute() );
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-  const bool drive_letter_is_root_name = true;
+-#else
+-  const bool drive_letter_is_root_name = false;
+-#endif
+-  VERIFY( path("c:/").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo/").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo/bar").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo/bar/").is_absolute() == drive_letter_is_root_name );
++  VERIFY( path("c:/").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo/").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo/bar").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo/bar/").is_absolute() == !is_posix );
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -44,15 +44,16 @@
+   VERIFY( iter == end(iter) );
+ 
+   // Test non-empty directory.
+-  create_directory_symlink(p, p / "l", ec);
++  create_directory(p / "x", ec);
+   VERIFY( !ec );
+   iter = fs::directory_iterator(p, ec);
+   VERIFY( !ec );
+   VERIFY( iter != fs::directory_iterator() );
+-  VERIFY( iter->path() == p/"l" );
++  VERIFY( iter->path() == p/"x" );
+   ++iter;
+   VERIFY( iter == end(iter) );
+ 
++#if !(defined(__MINGW32__) || defined(__MINGW64__))
+   // Test inaccessible directory.
+   permissions(p, fs::perms::none, ec);
+   VERIFY( !ec );
+@@ -65,6 +66,7 @@
+   iter = fs::directory_iterator(p, opts, ec);
+   VERIFY( !ec );
+   VERIFY( iter == end(iter) );
++#endif
+ 
+   permissions(p, fs::perms::owner_all, ec);
+   remove_all(p, ec);
+@@ -76,7 +78,7 @@
+   std::error_code ec;
+   const auto p = __gnu_test::nonexistent_path();
+   create_directory(p, fs::current_path(), ec);
+-  create_directory_symlink(p, p / "l", ec);
++  create_directory(p / "x", ec);
+   VERIFY( !ec );
+ 
+   // Test post-increment (libstdc++/71005)
+@@ -86,7 +88,7 @@
+   const auto entry1 = *iter;
+   const auto entry2 = *iter++;
+   VERIFY( entry1 == entry2 );
+-  VERIFY( entry1.path() == p/"l" );
++  VERIFY( entry1.path() == p/"x" );
+   VERIFY( iter == end(iter) );
+ 
+   remove_all(p, ec);
+@@ -121,7 +123,7 @@
+ {
+   auto p = __gnu_test::nonexistent_path();
+   create_directory(p);
+-  create_directory_symlink(p, p / "l");
++  create_directory(p / "x");
+   fs::directory_iterator it(p), endit;
+   VERIFY( begin(it) == it );
+   static_assert( noexcept(begin(it)), "begin is noexcept" );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -31,12 +31,29 @@
+ test01()
+ {
+   for (const path& p : __gnu_test::test_paths)
++  {
++#if defined(__MINGW32__) || defined(__MINGW64__)
++    if (p.empty())
++      continue;
++#endif
+     VERIFY( absolute(p).is_absolute() );
++  }
+ }
+ 
+ void
+ test02()
+ {
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  path p1("/");
++  VERIFY( absolute(p1) != p1 );
++  path p2("/foo");
++  VERIFY( absolute(p2) != p2 );
++  path p3("foo");
++  VERIFY( absolute(p3) != p3 );
++  path p4("C:\\");
++  VERIFY( absolute(p3, p4) == "C:\\foo" );
++  VERIFY( absolute(p4) == p4 );
++#else
+   path p1("/");
+   VERIFY( absolute(p1) == p1 );
+   VERIFY( absolute(p1, "/bar") == p1 );
+@@ -46,6 +63,7 @@
+   path p3("foo");
+   VERIFY( absolute(p3) != p3 );
+   VERIFY( absolute(p3, "/bar") == "/bar/foo" );
++#endif
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -114,7 +114,7 @@
+   auto to = __gnu_test::nonexistent_path();
+ 
+   // test empty file
+-  std::ofstream{from.native()};
++  std::ofstream{from.c_str()};
+   VERIFY( fs::exists(from) );
+   VERIFY( fs::file_size(from) == 0 );
+   fs::copy(from, to);
+@@ -123,7 +123,7 @@
+ 
+   remove(to);
+   VERIFY( !fs::exists(to) );
+-  std::ofstream{from.native()} << "Hello, filesystem!";
++  std::ofstream{from.c_str()} << "Hello, filesystem!";
+   VERIFY( fs::file_size(from) != 0 );
+   fs::copy(from, to);
+   VERIFY( fs::exists(to) );
+@@ -150,9 +150,9 @@
+   }
+ 
+   __gnu_test::scoped_file f1(from/"a/f1");
+-  std::ofstream{f1.path} << "file one";
++  std::ofstream{f1.path.c_str()} << "file one";
+   __gnu_test::scoped_file f2(from/"a/b/f2");
+-  std::ofstream{f2.path} << "file two";
++  std::ofstream{f2.path.c_str()} << "file two";
+ 
+   copy(from, to, ec);
+   VERIFY( !ec );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -42,7 +42,7 @@
+   VERIFY( !exists(to) );
+ 
+   // test empty file
+-  std::ofstream{from.native()};
++  std::ofstream{from.c_str()};
+   VERIFY( exists(from) );
+   VERIFY( file_size(from) == 0 );
+ 
+@@ -58,7 +58,7 @@
+   VERIFY( exists(to) );
+   VERIFY( file_size(to) == 0 );
+ 
+-  std::ofstream{from.native()} << "Hello, filesystem!";
++  std::ofstream{from.c_str()} << "Hello, filesystem!";
+   VERIFY( file_size(from) != 0 );
+   remove(to);
+   VERIFY( !exists(to) );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -28,16 +28,18 @@
+ void
+ test01()
+ {
+-  VERIFY( exists(path{"/"}) );
+-  VERIFY( exists(path{"/."}) );
++  const path root = __gnu_test::root_path();
++
++  VERIFY( exists(root) );
++  VERIFY( exists(root/".") );
+   VERIFY( exists(path{"."}) );
+   VERIFY( exists(path{".."}) );
+   VERIFY( exists(std::experimental::filesystem::current_path()) );
+ 
+   std::error_code ec = std::make_error_code(std::errc::invalid_argument);
+-  VERIFY( exists(path{"/"}, ec) );
++  VERIFY( exists(root, ec) );
+   VERIFY( !ec );
+-  VERIFY( exists(path{"/."}, ec) );
++  VERIFY( exists(root/".", ec) );
+   VERIFY( !ec );
+   VERIFY( exists(path{"."}, ec) );
+   VERIFY( !ec );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -82,7 +82,7 @@
+   empty = is_empty(f.path);
+   VERIFY( empty );
+ 
+-  std::ofstream{f.path.native()} << "data";
++  std::ofstream{f.path.c_str()} << "data";
+   ec = bad_ec;
+   empty = is_empty(p, ec);
+   VERIFY( !ec );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -81,7 +81,7 @@
+   ::utimbuf times;
+   times.modtime = std::numeric_limits<std::time_t>::max() - 1;
+   times.actime = std::numeric_limits<std::time_t>::max() - 1;
+-  VERIFY( !::utime(p.c_str(), &times) );
++  VERIFY( !::utime(p.string().c_str(), &times) );
+ #else
+   return;
+ #endif
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -30,9 +30,10 @@
+ void
+ test01()
+ {
+-  fs::space_info s = fs::space("/");
++  const fs::path root = __gnu_test::root_path();
++  fs::space_info s = fs::space(root);
+   std::error_code ec = make_error_code(std::errc::invalid_argument);
+-  s = fs::space("/", ec);
++  s = fs::space(root, ec);
+   VERIFY( !ec );
+ 
+   s = fs::space(__gnu_test::nonexistent_path(), ec);
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -27,10 +27,28 @@
+ void
+ clean_env()
+ {
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  ::_putenv("TMP=");
++  ::_putenv("TEMP=");
++#else
+   ::unsetenv("TMPDIR");
+   ::unsetenv("TMP");
+   ::unsetenv("TEMPDIR");
+   ::unsetenv("TEMP");
++#endif
++}
++
++bool
++set_env(const char* name, std::string value)
++{
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  std::string s = name;
++  s += '=';
++  s += value;
++  return !::_putenv(s.c_str());
++#else
++  return !::setenv(name, value.c_str(), 1);
++#endif
+ }
+ 
+ namespace fs = std::experimental::filesystem;
+@@ -57,7 +75,7 @@
+ {
+   clean_env();
+ 
+-  if (::setenv("TMPDIR", __gnu_test::nonexistent_path().string().c_str(), 1))
++  if (set_env("TMPDIR", __gnu_test::nonexistent_path().string()))
+     return; // just give up
+ 
+   std::error_code ec;
+@@ -80,7 +98,7 @@
+   auto p = __gnu_test::nonexistent_path();
+   create_directories(p/"tmp");
+   permissions(p, fs::perms::none);
+-  setenv("TMPDIR", (p/"tmp").c_str(), 1);
++  set_env("TMPDIR", (p/"tmp").string());
+   std::error_code ec;
+   auto r = fs::temp_directory_path(ec); // libstdc++/PR71337
+   VERIFY( ec == std::make_error_code(std::errc::permission_denied) );
+@@ -102,7 +120,7 @@
+ test04()
+ {
+   __gnu_test::scoped_file f;
+-  setenv("TMPDIR", f.path.c_str(), 1);
++  set_env("TMPDIR", f.path.string());
+   std::error_code ec;
+   auto r = fs::temp_directory_path(ec);
+   VERIFY( ec == std::make_error_code(std::errc::not_a_directory) );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -34,16 +34,20 @@
+ 
+   path pp = p;
+   pp /= p;
+-  VERIFY( pp.native() == "/foo/bar/foo/bar" );
++  VERIFY( pp.string() == "/foo/bar/foo/bar" );
+ 
+   path q("baz");
+ 
+   path qq = q;
+   qq /= q;
+-  VERIFY( qq.native() == "baz/baz" );
++#if defined(__MINGW32__) || defined(__MINGW64__)
++  VERIFY( qq.string() == "baz\\baz" );
++#else
++  VERIFY( qq.string() == "baz/baz" );
++#endif
+ 
+   q /= p;
+-  VERIFY( q.native() == "baz/foo/bar" );
++  VERIFY( q.string() == "baz/foo/bar" );
+ 
+   path r = "";
+   r /= path();
+@@ -54,7 +58,7 @@
+ 
+   path s = "dir/";
+   s /= path("/file");
+-  VERIFY( s.native() == "dir//file" );
++  VERIFY( s.string() == "dir//file" );
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -34,18 +34,18 @@
+ 
+   path pp = p;
+   pp += p;
+-  VERIFY( pp.native() == "/foo/bar/foo/bar" );
++  VERIFY( pp.string() == "/foo/bar/foo/bar" );
+   VERIFY( std::distance(pp.begin(), pp.end()) == 5 );
+ 
+   path q("foo/bar");
+ 
+   path qq = q;
+   qq += q;
+-  VERIFY( qq.native() == "foo/barfoo/bar" );
++  VERIFY( qq.string() == "foo/barfoo/bar" );
+   VERIFY( std::distance(qq.begin(), qq.end()) == 3 );
+ 
+   q += p;
+-  VERIFY( q.native() == "foo/bar/foo/bar" );
++  VERIFY( q.string() == "foo/bar/foo/bar" );
+   VERIFY( std::distance(q.begin(), q.end()) == 4 );
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -48,8 +48,8 @@
+     path rootdir = p.root_directory();
+     // If root-directory is composed of 'slash name',
+     // 'slash' is excluded from the returned string.
+-    if (!rootdir.empty() && rootdir.native() != "/")
+-      VERIFY( rootdir.native()[0] != '/' );
++    if (!rootdir.empty() && rootdir.string() != "/")
++      VERIFY( rootdir.string()[0] != '/' );
+   }
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -35,7 +35,7 @@
+   path p = "foo.bar.baz.tar";
+   std::vector<std::string> v;
+   for (; !p.extension().empty(); p = p.stem())
+-    v.push_back(p.extension().native());
++    v.push_back(p.extension().string());
+   VERIFY( v.at(0) == ".tar" );
+   VERIFY( v.at(1) == ".baz" );
+   VERIFY( v.at(2) == ".bar" );
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -27,14 +27,15 @@
+ test01()
+ {
+   using namespace std::experimental::filesystem;
+-  const std::string s = "abc";
++  using string_type = std::basic_string<path::value_type>;
++  const string_type s{ 'a', 'b', 'c' };
+   path p(s);
+ 
+   VERIFY( p.native() == s );
+   VERIFY( p.c_str() == s );
+-  VERIFY( static_cast<std::string>(p) == s );
++  VERIFY( static_cast<string_type>(p) == s );
+ 
+-  std::string s2 = p; // implicit conversion
++  string_type s2 = p; // implicit conversion
+   VERIFY( s2 == p.native() );
+ }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.200352287 +0100
+@@ -29,11 +29,17 @@
+ void
+ test01()
+ {
+-  VERIFY( path("/").is_absolute() );
+-  VERIFY( path("/foo").is_absolute() );
+-  VERIFY( path("/foo/").is_absolute() );
+-  VERIFY( path("/foo/bar").is_absolute() );
+-  VERIFY( path("/foo/bar/").is_absolute() );
++  #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
++  const bool is_posix = false;
++#else
++  const bool is_posix = true;
++#endif
++
++  VERIFY( path("/").is_absolute() == is_posix );
++  VERIFY( path("/foo").is_absolute() == is_posix );
++  VERIFY( path("/foo/").is_absolute() == is_posix );
++  VERIFY( path("/foo/bar").is_absolute() == is_posix );
++  VERIFY( path("/foo/bar/").is_absolute() == is_posix );
+   VERIFY( ! path("foo").is_absolute() );
+   VERIFY( ! path("foo/").is_absolute() );
+   VERIFY( ! path("foo/bar").is_absolute() );
+@@ -43,16 +49,11 @@
+   VERIFY( ! path("c:foo/").is_absolute() );
+   VERIFY( ! path("c:foo/bar").is_absolute() );
+   VERIFY( ! path("c:foo/bar/").is_absolute() );
+-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+-  const bool drive_letter_is_root_name = true;
+-#else
+-  const bool drive_letter_is_root_name = false;
+-#endif
+-  VERIFY( path("c:/").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo/").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo/bar").is_absolute() == drive_letter_is_root_name );
+-  VERIFY( path("c:/foo/bar/").is_absolute() == drive_letter_is_root_name );
++  VERIFY( path("c:/").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo/").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo/bar").is_absolute() == !is_posix );
++  VERIFY( path("c:/foo/bar/").is_absolute() == !is_posix );
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/util/testsuite_fs.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/util/testsuite_fs.h	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/util/testsuite_fs.h	2019-02-04 14:09:46.200352287 +0100
+@@ -73,6 +73,16 @@
+     "a", "a/b", "a/b/", "a/b/c", "a/b/c.d", "a/b/..", "a/b/c.", "a/b/.c"
+   };
+ 
++  test_fs::path
++  root_path()
++  {
++#if defined(__MING32__) || defined(__MINGW64__)
++    return L"c:/";
++#else
++    return "/";
++#endif
++  }
++
+   // This is NOT supposed to be a secure way to get a unique name!
+   // We just need a path that doesn't exist for testing purposes.
+   test_fs::path
+@@ -127,7 +137,7 @@
+ 
+     explicit
+     scoped_file(const path_type& p = nonexistent_path()) : path(p)
+-    { std::ofstream{p.native()}; }
++    { std::ofstream{p.c_str()}; }
+ 
+     scoped_file(path_type p, adopt_file_t) : path(p) { }
+ 
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-04 14:09:46.204352402 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-04 14:25:35.027665466 +0100
+@@ -30,7 +30,7 @@
+ test01()
+ {
+   // path(string_type&&, format)
+-  auto s = [&]() -> path::string_type { return "foo/bar"; };
++  auto s = [&]() -> path::string_type { return path("foo/bar").native(); };
+   path p0(s());
+   path p1(s(), path::auto_format);
+   VERIFY( p1 == p0 );
+@@ -44,7 +44,7 @@
+ test02()
+ {
+   // path(const Source&, format)
+-  path::string_type s = "foo/bar";
++  path::string_type s = path("foo/bar").native();
+   path p0(s);
+   path p1(s, path::auto_format);
+   VERIFY( p1 == p0 );

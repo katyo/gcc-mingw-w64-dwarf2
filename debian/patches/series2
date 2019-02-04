@@ -1,2 +1,10 @@
 reproducible-s-oscons.patch
 gcov.patch
+wc-file-streams.patch
+refactor-path-construction.patch
+win-std-filesystem.patch
+hide-path-iostream-operators.patch
+filesystem_error-no-throw-copyable.patch
+overload-distance-and-advance.patch
+#update-path-compare-logic.patch
+#fix-filesystem-path-lexically_normal.patch

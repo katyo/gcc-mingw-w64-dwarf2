@@ -1,0 +1,667 @@
+commit 861db1097d3f013ba2534316f15d65e1442c8798
+Author: redi <redi@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date:   Wed May 23 22:48:51 2018 +0000
+
+    Refactor path construction from null terminated iterator ranges
+    
+    Move duplicated code to new _S_string_from_iter function and fix
+    constraints to accept iterators with const value type.
+    
+            * include/bits/fs_path.h (path::__is_encoded_char): Change from class
+            template to alias template.
+            (path::__value_type_is_char): Use remove_const_t.
+            (path:_S_string_from_iter): New helper function.
+            (path::_S_convert(InputIter, __null_terminated))
+            (path::_S_convert_loc(InputIter, __null_terminated, const locale&)):
+            Use _S_string_from_iter.
+            (path::string<_CharT, _Allocator>(const _Allocator&)): Allow sharing
+            rep for COW strings.
+            * include/experimental/bits/fs_path.h (path::__is_encoded_char):
+            Change from class template to alias template.
+            (path::__value_type_is_char): Use remove_const.
+            (path:_S_string_from_iter): New helper function.
+            (path::_S_convert(InputIter, __null_terminated))
+            (path::_S_convert_loc(InputIter, __null_terminated, const locale&)):
+            Use _S_string_from_iter.
+            * testsuite/27_io/filesystem/path/append/source.cc: Test appending
+            wide strings.
+            * testsuite/27_io/filesystem/path/concat/strings.cc: Check for exact
+            string equality, not path equivalence.
+            * testsuite/27_io/filesystem/path/construct/format.cc: Check
+            construction from std::string and std::wstring and input iterators.
+            * testsuite/27_io/filesystem/path/construct/locale.cc: Check
+            construction from iterators.
+            * testsuite/experimental/filesystem/path/concat/strings.cc: Check for
+            exact string equality, not path equivalence.
+            * testsuite/experimental/filesystem/path/construct/locale.cc: Check
+            construction from iterators.
+    
+    git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@260628 138bc75d-0d04-0410-961f-82ee72b054a4
+
+Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:09:08.755274419 +0100
+@@ -65,8 +65,10 @@
+   /// A filesystem path.
+   class path
+   {
+-    template<typename _CharT>
+-      struct __is_encoded_char : std::false_type { };
++    template<typename _CharT, typename _Ch = remove_const_t<_CharT>>
++      using __is_encoded_char
++	= __or_<is_same<_Ch, char>, is_same<_Ch, wchar_t>,
++		is_same<_Ch, char16_t>, is_same<_Ch, char32_t>>;
+ 
+     template<typename _Iter,
+ 	     typename _Iter_traits = std::iterator_traits<_Iter>>
+@@ -145,7 +147,7 @@
+ 	     typename _Iter = decltype(_S_range_begin(std::declval<_Tp>())),
+ 	     typename _Val = typename std::iterator_traits<_Iter>::value_type>
+       using __value_type_is_char
+-	= typename std::enable_if<std::is_same<_Val, char>::value>::type;
++	= std::enable_if_t<std::is_same_v<std::remove_const_t<_Val>, char>>;
+ 
+   public:
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+@@ -392,6 +394,20 @@
+     iterator begin() const;
+     iterator end() const;
+ 
++    // Create a basic_string by reading until a null character.
++    template<typename _InputIterator,
++	     typename _Traits = std::iterator_traits<_InputIterator>,
++	     typename _CharT
++	       = typename std::remove_cv_t<typename _Traits::value_type>>
++      static std::basic_string<_CharT>
++      _S_string_from_iter(_InputIterator __source)
++      {
++	std::basic_string<_CharT> __str;
++	for (_CharT __ch = *__source; __ch != _CharT(); __ch = *++__source)
++	  __str.push_back(__ch);
++	return __str;
++      }
++
+   private:
+     enum class _Type : unsigned char {
+ 	_Multi, _Root_name, _Root_dir, _Filename
+@@ -444,11 +460,8 @@
+       static string_type
+       _S_convert(_InputIterator __src, __null_terminated)
+       {
+-	using _Tp = typename std::iterator_traits<_InputIterator>::value_type;
+-	std::basic_string<typename remove_cv<_Tp>::type> __tmp;
+-	for (; *__src != _Tp{}; ++__src)
+-	  __tmp.push_back(*__src);
+-	return _S_convert(__tmp.c_str(), __tmp.c_str() + __tmp.size());
++	auto __s = _S_string_from_iter(__src);
++	return _S_convert(__s.c_str(), __s.c_str() + __s.size());
+       }
+ 
+     static string_type
+@@ -468,10 +481,8 @@
+       _S_convert_loc(_InputIterator __src, __null_terminated,
+ 		     const std::locale& __loc)
+       {
+-	std::string __tmp;
+-	while (*__src != '\0')
+-	  __tmp.push_back(*__src++);
+-	return _S_convert_loc(__tmp.data(), __tmp.data()+__tmp.size(), __loc);
++	std::string __s = _S_string_from_iter(__src);
++	return _S_convert_loc(__s.data(), __s.data() + __s.size(), __loc);
+       }
+ 
+     template<typename _CharT, typename _Traits, typename _Allocator>
+@@ -501,25 +512,6 @@
+     _Type _M_type = _Type::_Filename;
+   };
+ 
+-  template<>
+-    struct path::__is_encoded_char<char> : std::true_type
+-    { using value_type = char; };
+-
+-  template<>
+-    struct path::__is_encoded_char<wchar_t> : std::true_type
+-    { using value_type = wchar_t; };
+-
+-  template<>
+-    struct path::__is_encoded_char<char16_t> : std::true_type
+-    { using value_type = char16_t; };
+-
+-  template<>
+-    struct path::__is_encoded_char<char32_t> : std::true_type
+-    { using value_type = char32_t; };
+-
+-  template<typename _Tp>
+-    struct path::__is_encoded_char<const _Tp> : __is_encoded_char<_Tp> { };
+-
+   inline void swap(path& __lhs, path& __rhs) noexcept { __lhs.swap(__rhs); }
+ 
+   size_t hash_value(const path& __p) noexcept;
+@@ -916,11 +908,16 @@
+     path::string(const _Allocator& __a) const
+     {
+       if constexpr (is_same_v<_CharT, value_type>)
++	{
+ #if _GLIBCXX_USE_CXX11_ABI
+-	return { _M_pathname, __a };
++	  return { _M_pathname, __a };
+ #else
+-	return { _M_pathname, string_type::size_type(0), __a };
++	  if constexpr (is_same_v<_Allocator, string_type::allocator_type>)
++	    return _M_pathname;
++	  else
++	    return { _M_pathname, string_type::size_type(0), __a };
+ #endif
++	}
+       else
+ 	return _S_str_convert<_CharT, _Traits>(_M_pathname, __a);
+     }
+Index: gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-04 14:09:08.755274419 +0100
+@@ -79,8 +79,11 @@
+   /// A filesystem path.
+   class path
+   {
+-    template<typename _CharT>
+-      struct __is_encoded_char : std::false_type { };
++    template<typename _CharT,
++	     typename _Ch = typename remove_const<_CharT>::type>
++      using __is_encoded_char
++	= __or_<is_same<_Ch, char>, is_same<_Ch, wchar_t>,
++		is_same<_Ch, char16_t>, is_same<_Ch, char32_t>>;
+ 
+     template<typename _Iter,
+ 	     typename _Iter_traits = std::iterator_traits<_Iter>>
+@@ -163,8 +166,9 @@
+     template<typename _Tp,
+ 	     typename _Iter = decltype(_S_range_begin(std::declval<_Tp>())),
+ 	     typename _Val = typename std::iterator_traits<_Iter>::value_type>
+-      using __value_type_is_char
+-	= typename std::enable_if<std::is_same<_Val, char>::value>::type;
++      using __value_type_is_char = typename std::enable_if<
++	std::is_same<typename std::remove_const<_Val>::type, char>::value
++	>::type;
+ 
+   public:
+ #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
+@@ -380,6 +384,20 @@
+     iterator begin() const;
+     iterator end() const;
+ 
++    // Create a basic_string by reading until a null character.
++    template<typename _InputIterator,
++	     typename _Traits = std::iterator_traits<_InputIterator>,
++	     typename _CharT
++	       = typename std::remove_cv<typename _Traits::value_type>::type>
++      static std::basic_string<_CharT>
++      _S_string_from_iter(_InputIterator __source)
++      {
++	std::basic_string<_CharT> __str;
++	for (_CharT __ch = *__source; __ch != _CharT(); __ch = *++__source)
++	  __str.push_back(__ch);
++	return __str;
++      }
++
+   private:
+     enum class _Type : unsigned char {
+ 	_Multi, _Root_name, _Root_dir, _Filename
+@@ -429,11 +447,8 @@
+       static string_type
+       _S_convert(_InputIterator __src, __null_terminated)
+       {
+-	using _Tp = typename std::iterator_traits<_InputIterator>::value_type;
+-	std::basic_string<typename remove_cv<_Tp>::type> __tmp;
+-	for (; *__src != _Tp{}; ++__src)
+-	  __tmp.push_back(*__src);
+-	return _S_convert(__tmp.c_str(), __tmp.c_str() + __tmp.size());
++	auto __s = _S_string_from_iter(__src);
++	return _S_convert(__s.c_str(), __s.c_str() + __s.size());
+       }
+ 
+     static string_type
+@@ -453,10 +468,8 @@
+       _S_convert_loc(_InputIterator __src, __null_terminated,
+ 		     const std::locale& __loc)
+       {
+-	std::string __tmp;
+-	while (*__src != '\0')
+-	  __tmp.push_back(*__src++);
+-	return _S_convert_loc(__tmp.data(), __tmp.data()+__tmp.size(), __loc);
++	std::string __s = _S_string_from_iter(__src);
++	return _S_convert_loc(__s.data(), __s.data() + __s.size(), __loc);
+       }
+ 
+     bool _S_is_dir_sep(value_type __ch)
+@@ -596,25 +609,6 @@
+     std::string _M_what = _M_gen_what();
+   };
+ 
+-  template<>
+-    struct path::__is_encoded_char<char> : std::true_type
+-    { using value_type = char; };
+-
+-  template<>
+-    struct path::__is_encoded_char<wchar_t> : std::true_type
+-    { using value_type = wchar_t; };
+-
+-  template<>
+-    struct path::__is_encoded_char<char16_t> : std::true_type
+-    { using value_type = char16_t; };
+-
+-  template<>
+-    struct path::__is_encoded_char<char32_t> : std::true_type
+-    { using value_type = char32_t; };
+-
+-  template<typename _Tp>
+-    struct path::__is_encoded_char<const _Tp> : __is_encoded_char<_Tp> { };
+-
+   struct path::_Cmpt : path
+   {
+     _Cmpt(string_type __s, _Type __t, size_t __pos)
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/source.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/source.cc	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/source.cc	2019-02-04 14:09:08.755274419 +0100
+@@ -36,7 +36,8 @@
+ // path::append(InputIterator first, InputIterator last)
+ // Equivalent to: return operator/=(path(first, last));
+ 
+-void test(const path& p, std::string_view s)
++template<typename Char>
++void test(const path& p, const Char* s)
+ {
+   path expected = p;
+   expected /= path(s);
+@@ -47,8 +48,8 @@
+   path func = p;
+   func.append(s);
+ 
+-  __gnu_test::test_container<const char, __gnu_test::input_iterator_wrapper>
+-    input_range(s.begin(), s.end());
++  __gnu_test::test_container<const Char, __gnu_test::input_iterator_wrapper>
++    input_range(s, s + std::char_traits<Char>::length(s));
+   path range = p;
+   range.append(input_range.begin(), input_range.end());
+ 
+@@ -94,7 +95,21 @@
+ {
+   for (const path& p : __gnu_test::test_paths)
+     for (const path& q : __gnu_test::test_paths)
+-      test(p, q.native());
++    {
++      test(p, q.c_str());
++      if constexpr (!std::is_same_v<path::value_type, char>)
++	test(p, q.string().c_str());
++    }
++}
++
++void
++test04()
++{
++#ifdef _GLIBCXX_USE_WCHAR_T
++  test(  "foo", L"/bar" );
++  test( L"foo",  "/bar" );
++  test( L"foo", L"/bar" );
++#endif
+ }
+ 
+ int
+@@ -103,4 +118,5 @@
+   test01();
+   test02();
+   test03();
++  test04();
+ }
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/concat/strings.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/concat/strings.cc	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/concat/strings.cc	2019-02-04 14:09:08.755274419 +0100
+@@ -23,6 +23,7 @@
+ 
+ #include <filesystem>
+ #include <testsuite_hooks.h>
++#include <testsuite_iterators.h>
+ 
+ using std::filesystem::path;
+ 
+@@ -30,23 +31,30 @@
+ test01()
+ {
+   path p("/");
+-  p += path::string_type("foo");
+-  VERIFY( p.filename() == "foo" );
++  p += "foo";
++  VERIFY( p.filename().string() == "foo" );
+   p += "bar";
+-  VERIFY( p.filename() == "foobar" );
++  VERIFY( p.filename().string() == "foobar" );
+   p += '/';
+-  VERIFY( p.parent_path() == "/foobar" && p.filename() == "" );
++  VERIFY( p.parent_path().string() == "/foobar" );
++  VERIFY( p.filename().string() == "" );
+ #if _GLIBCXX_USE_WCHAR_T
++  VERIFY( p.parent_path().wstring() == L"/foobar" );
++  VERIFY( p.filename().wstring() == L"" );
+   p += L"baz.txt";
+ #else
+   p += "baz.txt";
+ #endif
+-  VERIFY( p.filename() == "baz.txt" );
++  VERIFY( p.filename().string() == "baz.txt" );
+   p.concat("/dir/");
+-  VERIFY( p.parent_path() == "/foobar/baz.txt/dir" && p.filename() == "" );
+-  std::string file = "file";
+-  p.concat(file.begin(), file.end());
+-  VERIFY( p.filename() == "file" );
++  // N.B. on Windows p.parent_path() is "/foobar\\baz.txt\\dir"
++  VERIFY( p.parent_path() == path("/foobar/baz.txt/dir")  );
++  VERIFY( p.filename().string() == "" );
++  const char file[] = "file";
++  __gnu_test::test_container<const char, __gnu_test::input_iterator_wrapper>
++    input(file, file + 4);
++  p.concat(input.begin(), input.end());
++  VERIFY( p.filename().string() == file );
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-04 14:09:08.755274419 +0100
+@@ -20,13 +20,16 @@
+ // { dg-require-filesystem-ts "" }
+ 
+ #include <filesystem>
++#include <string.h>
+ #include <testsuite_hooks.h>
++#include <testsuite_iterators.h>
+ 
+ using std::filesystem::path;
+ 
+ void
+ test01()
+ {
++  // path(string_type&&, format)
+   auto s = [&]() -> path::string_type { return "foo/bar"; };
+   path p0(s());
+   path p1(s(), path::auto_format);
+@@ -40,6 +43,7 @@
+ void
+ test02()
+ {
++  // path(const Source&, format)
+   path::string_type s = "foo/bar";
+   path p0(s);
+   path p1(s, path::auto_format);
+@@ -53,7 +57,8 @@
+ void
+ test03()
+ {
+-  const char* s = "foo/bar";
++  // path(const Source&, format)
++  std::string s = "foo/bar";
+   path p0(s);
+   path p1(s, path::auto_format);
+   VERIFY( p1 == p0 );
+@@ -66,19 +71,57 @@
+ void
+ test04()
+ {
+-  const char s[] = "foo/bar";
+-  path p0(std::begin(s), std::end(s));
+-  path p1(std::begin(s), std::end(s), path::auto_format);
++#ifdef _GLIBCXX_USE_WCHAR_T
++  // path(const Source&, format)
++  std::wstring s = L"foo/bar";
++  path p0(s);
++  path p1(s, path::auto_format);
+   VERIFY( p1 == p0 );
+-  path p2(std::begin(s), std::end(s), path::native_format);
++  path p2(s, path::native_format);
+   VERIFY( p2 == p0 );
+-  path p3(std::begin(s), std::end(s), path::generic_format);
++  path p3(s, path::generic_format);
+   VERIFY( p3 == p0 );
++#endif
+ }
+ 
+ void
+ test05()
+ {
++  // path(const Source&, format)
++  const char* s = "foo/bar";
++  path p0(s);
++  path p1(s, path::auto_format);
++  VERIFY( p1 == p0 );
++  path p2(s, path::native_format);
++  VERIFY( p2 == p0 );
++  path p3(s, path::generic_format);
++  VERIFY( p3 == p0 );
++}
++
++void
++test06()
++{
++  // path(InputIterator, InputIterator, format)
++  const char s[] = "foo/bar";
++  using namespace __gnu_test;
++  const test_container<const char, input_iterator_wrapper> c(s, s + strlen(s));
++  auto c0 = c;
++  path p0(std::begin(c0), std::end(c0));
++  auto c1 = c;
++  path p1(std::begin(c1), std::end(c1), path::auto_format);
++  VERIFY( p1 == p0 );
++  auto c2 = c;
++  path p2(std::begin(c2), std::end(c2), path::native_format);
++  VERIFY( p2 == p0 );
++  auto c3 = c;
++  path p3(std::begin(c3), std::end(c3), path::generic_format);
++  VERIFY( p3 == p0 );
++}
++
++void
++test07()
++{
++  // path(const Source&, const locale&, format)
+   const char* s = "foo/bar";
+   std::locale loc;
+   path p0(s, loc);
+@@ -91,16 +134,23 @@
+ }
+ 
+ void
+-test06()
++test08()
+ {
++  // path(InputIterator, InputIterator, const locale&, format)
+   const char s[] = "foo/bar";
++  using namespace __gnu_test;
++  const test_container<const char, input_iterator_wrapper> c(s, s + strlen(s));
+   std::locale loc;
+-  path p0(std::begin(s), std::end(s), loc);
+-  path p1(std::begin(s), std::end(s), loc, path::auto_format);
++  auto c0 = c;
++  path p0(std::begin(c0), std::end(c0), loc);
++  auto c1 = c;
++  path p1(std::begin(c1), std::end(c1), loc, path::auto_format);
+   VERIFY( p1 == p0 );
+-  path p2(std::begin(s), std::end(s), loc, path::native_format);
++  auto c2 = c;
++  path p2(std::begin(c2), std::end(c2), loc, path::native_format);
+   VERIFY( p2 == p0 );
+-  path p3(std::begin(s), std::end(s), loc, path::generic_format);
++  auto c3 = c;
++  path p3(std::begin(c3), std::end(c3), loc, path::generic_format);
+   VERIFY( p3 == p0 );
+ }
+ 
+@@ -113,4 +163,6 @@
+   test04();
+   test05();
+   test06();
++  test07();
++  test08();
+ }
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-04 14:09:08.755274419 +0100
+@@ -23,6 +23,7 @@
+ 
+ #include <filesystem>
+ #include <testsuite_hooks.h>
++#include <testsuite_iterators.h>
+ 
+ using std::filesystem::path;
+ 
+@@ -33,8 +34,41 @@
+   VERIFY( p.native() == "/foo/bar" );
+ }
+ 
++void
++test02()
++{
++  using __gnu_test::test_container;
++  using __gnu_test::input_iterator_wrapper;
++  // Test with input iterators and const value_types
++
++  const std::locale loc;
++  const std::string s = "foo/bar/";
++  const path p0(s);
++
++  test_container<char, input_iterator_wrapper>
++      r1((char*)s.c_str(), (char*)s.c_str() + s.size());
++  path p1(r1.begin(), r1.end(), loc);
++  VERIFY( p1 == p0 );
++
++  test_container<char, input_iterator_wrapper>
++    r2((char*)s.c_str(), (char*)s.c_str() + s.size() + 1); // includes null-terminator
++  path p2(r2.begin(), loc);
++  VERIFY( p2 == p0 );
++
++  test_container<const char, input_iterator_wrapper>
++    r3(s.c_str(), s.c_str() + s.size());
++  path p3(r3.begin(), r3.end(), loc);
++  VERIFY( p3 == p0 );
++
++  test_container<const char, input_iterator_wrapper>
++    r4(s.c_str(), s.c_str() + s.size() + 1); // includes null-terminator
++  path p4(r4.begin(), loc);
++  VERIFY( p4 == p0 );
++}
++
+ int
+ main()
+ {
+   test01();
++  test02();
+ }
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/strings.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/strings.cc	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/strings.cc	2019-02-04 14:09:08.755274419 +0100
+@@ -23,6 +23,7 @@
+ 
+ #include <experimental/filesystem>
+ #include <testsuite_hooks.h>
++#include <testsuite_iterators.h>
+ 
+ using std::experimental::filesystem::path;
+ 
+@@ -30,23 +31,30 @@
+ test01()
+ {
+   path p("/");
+-  p += path::string_type("foo");
+-  VERIFY( p.filename() == "foo" );
++  p += std::string("foo");
++  VERIFY( p.filename().string() == "foo" );
+   p += "bar";
+-  VERIFY( p.filename() == "foobar" );
++  VERIFY( p.filename().string() == "foobar" );
+   p += '/';
+-  VERIFY( p.parent_path() == "/foobar" && p.filename() == "." );
++  VERIFY( p.parent_path().string() == "/foobar" );
++  VERIFY( p.filename().string() == "." );
+ #if _GLIBCXX_USE_WCHAR_T
++  VERIFY( p.parent_path().wstring() == L"/foobar" );
++  VERIFY( p.filename().wstring() == L"." );
+   p += L"baz.txt";
+ #else
+   p += "baz.txt";
+ #endif
+-  VERIFY( p.filename() == "baz.txt" );
++  VERIFY( p.filename().string() == "baz.txt" );
+   p.concat("/dir/");
+-  VERIFY( p.parent_path() == "/foobar/baz.txt/dir" && p.filename() == "." );
+-  std::string file = "file";
+-  p.concat(file.begin(), file.end());
+-  VERIFY( p.filename() == "file" );
++  // N.B. on Windows p.parent_path() is "/foobar\\baz.txt\\dir"
++  VERIFY( p.parent_path() == path("/foobar/baz.txt/dir") );
++  VERIFY( p.filename().string() == "." );
++  const char file[] = "file";
++  __gnu_test::test_container<const char, __gnu_test::input_iterator_wrapper>
++    input(file, file + 4);
++  p.concat(input.begin(), input.end());
++  VERIFY( p.filename().string() == file );
+ }
+ 
+ int
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/construct/locale.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/construct/locale.cc	2019-02-04 14:09:08.759274535 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/construct/locale.cc	2019-02-04 14:09:08.755274419 +0100
+@@ -23,6 +23,7 @@
+ 
+ #include <experimental/filesystem>
+ #include <testsuite_hooks.h>
++#include <testsuite_iterators.h>
+ 
+ using std::experimental::filesystem::path;
+ 
+@@ -33,8 +34,41 @@
+   VERIFY( p.string() == "/foo/bar" );
+ }
+ 
++void
++test02()
++{
++  using __gnu_test::test_container;
++  using __gnu_test::input_iterator_wrapper;
++  // Test with input iterators and const value_types
++
++  const std::locale loc;
++  const std::string s = "foo/bar/";
++  const path p0(s);
++
++  test_container<char, input_iterator_wrapper>
++      r1((char*)s.c_str(), (char*)s.c_str() + s.size());
++  path p1(r1.begin(), r1.end(), loc);
++  VERIFY( p1 == p0 );
++
++  test_container<char, input_iterator_wrapper>
++    r2((char*)s.c_str(), (char*)s.c_str() + s.size() + 1); // includes null-terminator
++  path p2(r2.begin(), loc);
++  VERIFY( p2 == p0 );
++
++  test_container<const char, input_iterator_wrapper>
++    r3(s.c_str(), s.c_str() + s.size());
++  path p3(r3.begin(), r3.end(), loc);
++  VERIFY( p3 == p0 );
++
++  test_container<const char, input_iterator_wrapper>
++    r4(s.c_str(), s.c_str() + s.size() + 1); // includes null-terminator
++  path p4(r4.begin(), loc);
++  VERIFY( p4 == p0 );
++}
++
+ int
+ main()
+ {
+   test01();
++  test02();
+ }

@@ -1,0 +1,113 @@
+commit 637f32c42159973f881522f5ff85dccc2675507c
+Author: redi <redi@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date:   Wed Dec 12 16:13:49 2018 +0000
+
+    Overload std::distance and std::advance for path::iterator
+    
+    Although filesystem::path::iterator is only a bidirectional iterator,
+    the underlying sequence has random access iterators (specifically, raw
+    pointers). This means std::distance and std::advance can be implemented
+    more efficiently than the generic versions which apply ++ and --
+    repeatedly.
+    
+            PR libstdc++/71044 (partial)
+            * include/bits/fs_path.h (__path_iter_distance, __path_iter_advance):
+            New friend functions to implement std::distance and std::advance more
+            efficiently.
+            (distance, advance): Add overloads for path::iterator.
+            * testsuite/27_io/filesystem/path/itr/components.cc: Test new
+            overload.
+    
+    git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@267057 138bc75d-0d04-0410-961f-82ee72b054a4
+
+Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:27:04.382239554 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:27:04.382239554 +0100
+@@ -733,6 +733,37 @@
+   private:
+     friend class path;
+ 
++    bool _M_is_multi() const { return _M_path->_M_type == _Type::_Multi; }
++
++    friend difference_type
++    __path_iter_distance(const iterator& __first, const iterator& __last)
++    {
++      __glibcxx_assert(__first._M_path != nullptr);
++      __glibcxx_assert(__first._M_path == __last._M_path);
++      if (__first._M_is_multi())
++	return std::distance(__first._M_cur, __last._M_cur);
++      else if (__first._M_at_end == __last._M_at_end)
++	return 0;
++      else
++	return __first._M_at_end ? -1 : 1;
++    }
++
++    friend void
++    __path_iter_advance(iterator& __i, difference_type __n)
++    {
++      if (__n == 1)
++	++__i;
++      else if (__n == -1)
++	--__i;
++      else if (__n != 0)
++	{
++	  __glibcxx_assert(__i._M_path != nullptr);
++	  __glibcxx_assert(__i._M_is_multi());
++	  // __glibcxx_assert(__i._M_path->_M_cmpts.end() - __i._M_cur >= __n);
++	  __i._M_cur += __n;
++	}
++    }
++
+     iterator(const path* __path, path::_List::const_iterator __iter)
+     : _M_path(__path), _M_cur(__iter), _M_at_end()
+     { }
+@@ -1160,6 +1191,15 @@
+ _GLIBCXX_END_NAMESPACE_CXX11
+ } // namespace filesystem
+ 
++inline ptrdiff_t
++distance(filesystem::path::iterator __first, filesystem::path::iterator __last)
++{ return __path_iter_distance(__first, __last); }
++
++template<typename _InputIterator, typename _Distance>
++  void
++  advance(filesystem::path::iterator& __i, _Distance __n)
++  { __path_iter_advance(__i, static_cast<ptrdiff_t>(__n)); }
++
+ extern template class __shared_ptr<const filesystem::filesystem_error::_Impl>;
+ 
+ _GLIBCXX_END_NAMESPACE_VERSION
+Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc
+===================================================================
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-04 14:27:04.382239554 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-04 14:27:04.382239554 +0100
+@@ -136,10 +136,28 @@
+     }
+ }
+ 
++void
++test04()
++{
++  std::filesystem::path p = "/a/b/c/d/e/f/g";
++  VERIFY( std::distance(p.begin(), p.end()) == 8);
++  auto it = p.begin();
++  std::advance(it, 1);
++  VERIFY( std::distance(p.begin(), it) == 1 );
++  VERIFY( it->native() == "a" );
++  std::advance(it, 3);
++  VERIFY( std::distance(p.begin(), it) == 4 );
++  VERIFY( it->native() == "d" );
++  std::advance(it, -2);
++  VERIFY( std::distance(p.begin(), it) == 2 );
++  VERIFY( it->native() == "b" );
++}
++
+ int
+ main()
+ {
+   test01();
+   test02();
+   test03();
++  test04();
+ }
