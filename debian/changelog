@@ -4,6 +4,7 @@ gcc-mingw-w64 (21~exp3) UNRELEASED; urgency=medium
     https://bugzilla.redhat.com/show_bug.cgi?id=1552529 for details).
   * Back-port std::filesystem fixes from GCC 9 (closes: #907369).
   * Set “Rules-Requires-Root: no”.
+  * Standards-Version 4.3.0, no further change required.
 
  -- Stephen Kitt <skitt@debian.org>  Thu, 20 Sep 2018 10:57:17 +0200
 
