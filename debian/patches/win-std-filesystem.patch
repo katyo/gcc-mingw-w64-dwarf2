@@ -192,8 +192,8 @@ Date:   Thu May 31 19:20:24 2018 +0000
 
 Index: gcc-mingw-w64/src/libstdc++-v3/config.h.in
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/config.h.in	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/config.h.in	2019-02-04 14:09:46.192352056 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/config.h.in	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/config.h.in	2019-02-16 15:36:57.093434772 +0100
 @@ -264,6 +264,9 @@
  /* Only used in build directory testsuite_hooks.h. */
  #undef HAVE_LIMIT_VMEM
@@ -226,8 +226,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/config.h.in
  #undef HAVE_SYMVER_SYMBOL_RENAMING_RUNTIME_SUPPORT
 Index: gcc-mingw-w64/src/libstdc++-v3/configure
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/configure	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/configure	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/configure	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/configure	2019-02-16 15:36:57.101435003 +0100
 @@ -80063,6 +80063,19 @@
  
  done
@@ -250,8 +250,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/configure
  if test "${enable_libstdcxx_filesystem_ts+set}" = set; then :
 Index: gcc-mingw-w64/src/libstdc++-v3/configure.ac
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/configure.ac	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/configure.ac	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/configure.ac	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/configure.ac	2019-02-16 15:36:57.101435003 +0100
 @@ -420,6 +420,7 @@
  
  # For Filesystem TS.
@@ -262,8 +262,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/configure.ac
  
 Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-16 15:36:57.101435003 +0100
 @@ -37,11 +37,11 @@
  #include <vector>
  #include <locale>
@@ -490,8 +490,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
    {
 Index: gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h	2019-02-16 15:36:57.101435003 +0100
 @@ -374,7 +374,7 @@
      bool has_filename() const;
      bool has_stem() const;
@@ -538,8 +538,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/include/experimental/bits/fs_path.h
    {
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir-common.h
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/dir-common.h	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir-common.h	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/dir-common.h	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir-common.h	2019-02-16 15:36:57.101435003 +0100
 @@ -26,6 +26,9 @@
  #define _GLIBCXX_DIR_COMMON_H 1
  
@@ -657,8 +657,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir-common.h
    switch (d.d_type)
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/dir.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir.cc	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/dir.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir.cc	2019-02-16 15:36:57.101435003 +0100
 @@ -37,6 +37,7 @@
  #include "dir-common.h"
  
@@ -687,8 +687,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/dir.cc
        sp->push(_Dir{ dirp, p });
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops-common.h
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/ops-common.h	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops-common.h	2019-02-04 14:09:46.196352172 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/ops-common.h	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops-common.h	2019-02-16 15:36:57.101435003 +0100
 @@ -34,12 +34,103 @@
  #  include <sys/stat.h>
  # endif
@@ -843,8 +843,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops-common.h
        return file_type::socket;
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/ops.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/ops.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc	2019-02-16 15:36:57.101435003 +0100
 @@ -47,20 +47,17 @@
  #if !_GLIBCXX_USE_UTIMENSAT && _GLIBCXX_HAVE_UTIME_H
  # include <utime.h> // utime
@@ -924,7 +924,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      {
        if (!is_not_found_errno(errno))
  	{
-@@ -459,8 +458,8 @@
+@@ -477,8 +476,8 @@
    {
      bool created = false;
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
@@ -935,7 +935,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
        {
  	const int err = errno;
  	if (err != EEXIST || !is_directory(p, ec))
-@@ -513,7 +512,7 @@
+@@ -531,7 +530,7 @@
  {
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
    stat_type st;
@@ -944,7 +944,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      {
        ec.assign(errno, std::generic_category());
        return false;
-@@ -562,11 +561,16 @@
+@@ -580,11 +579,16 @@
  fs::create_hard_link(const path& to, const path& new_hard_link,
  		     error_code& ec) noexcept
  {
@@ -962,7 +962,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
  #else
    ec = std::make_error_code(std::errc::not_supported);
  #endif
-@@ -586,7 +590,7 @@
+@@ -604,7 +608,7 @@
  fs::create_symlink(const path& to, const path& new_symlink,
  		   error_code& ec) noexcept
  {
@@ -971,7 +971,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
    if (::symlink(to.c_str(), new_symlink.c_str()))
      ec.assign(errno, std::generic_category());
    else
-@@ -596,7 +600,6 @@
+@@ -614,7 +618,6 @@
  #endif
  }
  
@@ -979,7 +979,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
  fs::path
  fs::current_path()
  {
-@@ -612,8 +615,8 @@
+@@ -630,8 +633,8 @@
  {
    path p;
  #ifdef _GLIBCXX_HAVE_UNISTD_H
@@ -990,7 +990,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      {
        p.assign(cwd.get());
        ec.clear();
-@@ -621,6 +624,7 @@
+@@ -639,6 +642,7 @@
    else
      ec.assign(errno, std::generic_category());
  #else
@@ -998,7 +998,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
    long path_max = pathconf(".", _PC_PATH_MAX);
    size_t size;
    if (path_max == -1)
-@@ -629,9 +633,15 @@
+@@ -647,9 +651,15 @@
        size = 10240;
    else
        size = path_max;
@@ -1015,7 +1015,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
        if (buf)
  	{
  	  if (getcwd(buf.get(), size))
-@@ -671,7 +681,7 @@
+@@ -689,7 +699,7 @@
  fs::current_path(const path& p, error_code& ec) noexcept
  {
  #ifdef _GLIBCXX_HAVE_UNISTD_H
@@ -1024,7 +1024,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -698,14 +708,14 @@
+@@ -716,14 +726,14 @@
    int err = 0;
    file_status s1, s2;
    stat_type st1, st2;
@@ -1041,7 +1041,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      s2 = make_file_status(st2);
    else if (is_not_found_errno(errno))
      s2.type(file_type::not_found);
-@@ -755,7 +765,7 @@
+@@ -773,7 +783,7 @@
      {
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
        stat_type st;
@@ -1050,7 +1050,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
  	{
  	  ec.assign(errno, std::generic_category());
  	  return deflt;
-@@ -805,7 +815,7 @@
+@@ -823,7 +833,7 @@
  std::uintmax_t
  fs::hard_link_count(const path& p, error_code& ec) noexcept
  {
@@ -1059,7 +1059,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
  		 static_cast<uintmax_t>(-1));
  }
  
-@@ -881,11 +891,11 @@
+@@ -899,11 +909,11 @@
    else
      ec.clear();
  #elif _GLIBCXX_HAVE_UTIME_H
@@ -1073,7 +1073,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -938,7 +948,7 @@
+@@ -956,7 +966,7 @@
  #else
    if (nofollow && is_symlink(st))
      ec = std::make_error_code(std::errc::operation_not_supported);
@@ -1082,7 +1082,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      err = errno;
  #endif
  
-@@ -958,10 +968,10 @@
+@@ -976,10 +986,10 @@
    return tgt;
  }
  
@@ -1095,7 +1095,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
    stat_type st;
    if (::lstat(p.c_str(), &st))
      {
-@@ -1015,6 +1025,19 @@
+@@ -1033,6 +1043,19 @@
  bool
  fs::remove(const path& p, error_code& ec) noexcept
  {
@@ -1115,7 +1115,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
    if (::remove(p.c_str()) == 0)
      {
        ec.clear();
-@@ -1024,6 +1047,7 @@
+@@ -1042,6 +1065,7 @@
      ec.clear();
    else
      ec.assign(errno, std::generic_category());
@@ -1123,7 +1123,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
    return false;
  }
  
-@@ -1077,7 +1101,7 @@
+@@ -1095,7 +1119,7 @@
  void
  fs::rename(const path& from, const path& to, error_code& ec) noexcept
  {
@@ -1132,7 +1132,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1098,7 +1122,7 @@
+@@ -1116,7 +1140,7 @@
  #ifdef _GLIBCXX_HAVE_UNISTD_H
    if (size > static_cast<uintmax_t>(std::numeric_limits<off_t>::max()))
      ec.assign(EINVAL, std::generic_category());
@@ -1141,7 +1141,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1126,23 +1150,14 @@
+@@ -1144,23 +1168,14 @@
      static_cast<uintmax_t>(-1),
      static_cast<uintmax_t>(-1)
    };
@@ -1171,7 +1171,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
    return info;
  }
  
-@@ -1152,7 +1167,7 @@
+@@ -1170,7 +1185,7 @@
  {
    file_status status;
    stat_type st;
@@ -1180,7 +1180,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      {
        int err = errno;
        ec.assign(err, std::generic_category());
-@@ -1176,7 +1191,7 @@
+@@ -1194,7 +1209,7 @@
  {
    file_status status;
    stat_type st;
@@ -1189,7 +1189,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
      {
        int err = errno;
        ec.assign(err, std::generic_category());
-@@ -1251,27 +1266,38 @@
+@@ -1269,27 +1284,38 @@
  
  fs::path fs::temp_directory_path(error_code& ec)
  {
@@ -1242,8 +1242,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/ops.cc
  
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/path.cc	2019-02-16 15:36:57.101435003 +0100
 @@ -61,6 +61,12 @@
    return *this;
  }
@@ -1317,8 +1317,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/path.cc
  _GLIBCXX_END_NAMESPACE_CXX11
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-dir.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-dir.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-dir.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-dir.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-dir.cc	2019-02-16 15:36:57.101435003 +0100
 @@ -37,6 +37,7 @@
  #include "dir-common.h"
  
@@ -1347,8 +1347,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-dir.cc
  	ecptr->clear();
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-ops.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-ops.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc	2019-02-16 15:39:28.261805390 +0100
 @@ -25,6 +25,7 @@
  #ifndef _GLIBCXX_USE_CXX11_ABI
  # define _GLIBCXX_USE_CXX11_ABI 1
@@ -1390,19 +1390,11 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    return ret;
  #else
    return current_path() / p;
-@@ -84,13 +82,37 @@
- fs::path
- fs::absolute(const path& p, error_code& ec)
- {
-+  path ret;
-+  if (p.empty())
-+    {
-+      ec = make_error_code(std::errc::no_such_file_or_directory);
-+      return ret;
-+    }
+@@ -98,7 +96,24 @@
+     }
+ 
  #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
 -  ec = std::make_error_code(errc::not_supported);
--  return {};
 +  const wstring& s = p.native();
 +  uint32_t len = 1024;
 +  wstring buf;
@@ -1422,16 +1414,9 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
 +      ret = std::move(buf);
 +    }
  #else
-   ec.clear();
--  return current_path() / p;
-+  ret = current_path();
-+  ret /= p;
- #endif
-+  return ret;
- }
- 
- namespace
-@@ -118,7 +140,7 @@
+   ret = current_path(ec);
+   ret /= p;
+@@ -131,7 +146,7 @@
      void operator()(void* p) const { ::free(p); }
    };
  
@@ -1440,7 +1425,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  }
  
  fs::path
-@@ -133,7 +155,8 @@
+@@ -146,7 +161,8 @@
    char_ptr buf{ nullptr };
  # if _XOPEN_VERSION < 700
    // Not safe to call realpath(path, NULL)
@@ -1450,7 +1435,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  # endif
    if (char* rp = ::realpath(pa.c_str(), buf.get()))
      {
-@@ -254,7 +277,7 @@
+@@ -267,7 +283,7 @@
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
  #ifdef NEED_DO_COPY_FILE
  bool
@@ -1459,7 +1444,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  		 copy_options_existing_file options,
  		 stat_type* from_st, stat_type* to_st,
  		 std::error_code& ec) noexcept
-@@ -264,7 +287,7 @@
+@@ -277,7 +293,7 @@
  
    if (to_st == nullptr)
      {
@@ -1468,7 +1453,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  	{
  	  const int err = errno;
  	  if (!is_not_found_errno(err))
-@@ -286,7 +309,7 @@
+@@ -299,7 +315,7 @@
  
    if (from_st == nullptr)
      {
@@ -1477,7 +1462,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  	{
  	  ec.assign(errno, std::generic_category());
  	  return false;
-@@ -344,12 +367,12 @@
+@@ -357,12 +373,12 @@
      }
  
    struct CloseFD {
@@ -1493,7 +1478,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    if (in.fd == -1)
      {
        ec.assign(errno, std::generic_category());
-@@ -360,7 +383,7 @@
+@@ -373,7 +389,7 @@
      oflag |= O_TRUNC;
    else
      oflag |= O_EXCL;
@@ -1502,7 +1487,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    if (out.fd == -1)
      {
        if (errno == EEXIST && options.skip)
-@@ -370,12 +393,12 @@
+@@ -383,12 +399,12 @@
        return false;
      }
  
@@ -1518,7 +1503,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  #endif
      {
        ec.assign(errno, std::generic_category());
-@@ -383,7 +406,7 @@
+@@ -396,7 +412,7 @@
      }
  
    size_t count = from_st->st_size;
@@ -1527,7 +1512,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    off_t offset = 0;
    ssize_t n = ::sendfile(out.fd, in.fd, &offset, count);
    if (n < 0 && errno != ENOSYS && errno != EINVAL)
-@@ -462,15 +485,15 @@
+@@ -475,15 +491,15 @@
    // _GLIBCXX_RESOLVE_LIB_DEFECTS
    // 2681. filesystem::copy() cannot copy symlinks
    if (use_lstat || copy_symlinks
@@ -1547,7 +1532,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      {
        if (!is_not_found_errno(errno))
  	{
-@@ -664,8 +687,9 @@
+@@ -713,8 +729,9 @@
    {
      bool created = false;
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
@@ -1559,7 +1544,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
        {
  	const int err = errno;
  	if (err != EEXIST || !is_directory(p, ec))
-@@ -718,7 +742,7 @@
+@@ -767,7 +784,7 @@
  {
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
    stat_type st;
@@ -1568,7 +1553,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      {
        ec.assign(errno, std::generic_category());
        return false;
-@@ -760,18 +784,23 @@
+@@ -809,18 +826,23 @@
    create_hard_link(to, new_hard_link, ec);
    if (ec)
      _GLIBCXX_THROW_OR_ABORT(filesystem_error("cannot create hard link",
@@ -1594,7 +1579,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  #else
    ec = std::make_error_code(std::errc::not_supported);
  #endif
-@@ -791,7 +820,7 @@
+@@ -840,7 +862,7 @@
  fs::create_symlink(const path& to, const path& new_symlink,
  		   error_code& ec) noexcept
  {
@@ -1603,7 +1588,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    if (::symlink(to.c_str(), new_symlink.c_str()))
      ec.assign(errno, std::generic_category());
    else
-@@ -817,8 +846,8 @@
+@@ -866,8 +888,8 @@
  {
    path p;
  #ifdef _GLIBCXX_HAVE_UNISTD_H
@@ -1614,7 +1599,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      {
        p.assign(cwd.get());
        ec.clear();
-@@ -826,6 +855,7 @@
+@@ -875,6 +897,7 @@
    else
      ec.assign(errno, std::generic_category());
  #else
@@ -1622,7 +1607,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    long path_max = pathconf(".", _PC_PATH_MAX);
    size_t size;
    if (path_max == -1)
-@@ -834,9 +864,15 @@
+@@ -883,9 +906,15 @@
        size = 10240;
    else
        size = path_max;
@@ -1639,7 +1624,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
        if (buf)
  	{
  	  if (getcwd(buf.get(), size))
-@@ -876,7 +912,7 @@
+@@ -925,7 +954,7 @@
  fs::current_path(const path& p, error_code& ec) noexcept
  {
  #ifdef _GLIBCXX_HAVE_UNISTD_H
@@ -1648,7 +1633,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -903,14 +939,14 @@
+@@ -952,14 +981,14 @@
    int err = 0;
    file_status s1, s2;
    stat_type st1, st2;
@@ -1665,7 +1650,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      s2 = make_file_status(st2);
    else if (is_not_found_errno(errno))
      s2.type(file_type::not_found);
-@@ -959,8 +995,8 @@
+@@ -1008,8 +1037,8 @@
      do_stat(const fs::path& p, std::error_code& ec, Accessor f, T deflt)
      {
  #ifdef _GLIBCXX_HAVE_SYS_STAT_H
@@ -1676,7 +1661,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  	{
  	  ec.assign(errno, std::generic_category());
  	  return deflt;
-@@ -1010,7 +1046,7 @@
+@@ -1059,7 +1088,7 @@
  std::uintmax_t
  fs::hard_link_count(const path& p, error_code& ec) noexcept
  {
@@ -1685,7 +1670,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  		 static_cast<uintmax_t>(-1));
  }
  
-@@ -1086,11 +1122,11 @@
+@@ -1135,11 +1164,11 @@
    else
      ec.clear();
  #elif _GLIBCXX_HAVE_UTIME_H
@@ -1699,7 +1684,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1145,7 +1181,7 @@
+@@ -1194,7 +1223,7 @@
  #else
    if (nofollow && is_symlink(st))
      ec = std::make_error_code(std::errc::operation_not_supported);
@@ -1708,7 +1693,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      err = errno;
  #endif
  
-@@ -1185,10 +1221,10 @@
+@@ -1234,10 +1263,10 @@
    return tgt;
  }
  
@@ -1721,7 +1706,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    stat_type st;
    if (::lstat(p.c_str(), &st))
      {
-@@ -1261,6 +1297,19 @@
+@@ -1310,6 +1339,19 @@
  bool
  fs::remove(const path& p, error_code& ec) noexcept
  {
@@ -1741,7 +1726,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    if (::remove(p.c_str()) == 0)
      {
        ec.clear();
-@@ -1270,6 +1319,7 @@
+@@ -1319,6 +1361,7 @@
      ec.clear();
    else
      ec.assign(errno, std::generic_category());
@@ -1749,7 +1734,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    return false;
  }
  
-@@ -1323,7 +1373,7 @@
+@@ -1372,7 +1415,7 @@
  void
  fs::rename(const path& from, const path& to, error_code& ec) noexcept
  {
@@ -1758,7 +1743,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1344,7 +1394,7 @@
+@@ -1393,7 +1436,7 @@
  #ifdef _GLIBCXX_HAVE_UNISTD_H
    if (size > static_cast<uintmax_t>(std::numeric_limits<off_t>::max()))
      ec.assign(EINVAL, std::generic_category());
@@ -1767,7 +1752,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      ec.assign(errno, std::generic_category());
    else
      ec.clear();
-@@ -1364,31 +1414,67 @@
+@@ -1413,31 +1456,67 @@
    return s;
  }
  
@@ -1849,7 +1834,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
    return info;
  }
  
-@@ -1398,7 +1484,7 @@
+@@ -1447,7 +1526,7 @@
  {
    file_status status;
    stat_type st;
@@ -1858,7 +1843,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      {
        int err = errno;
        ec.assign(err, std::generic_category());
-@@ -1422,7 +1508,7 @@
+@@ -1471,7 +1550,7 @@
  {
    file_status status;
    stat_type st;
@@ -1867,7 +1852,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
      {
        int err = errno;
        ec.assign(err, std::generic_category());
-@@ -1469,28 +1555,39 @@
+@@ -1518,28 +1597,39 @@
  
  fs::path fs::temp_directory_path(error_code& ec)
  {
@@ -1922,8 +1907,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-ops.cc
  fs::path
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -38,6 +38,66 @@
  
  constexpr path::value_type path::preferred_separator;
@@ -2004,7 +1989,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
  path&
  path::replace_extension(const path& replacement)
  {
-@@ -94,8 +160,8 @@
+@@ -95,8 +161,8 @@
      }
     // If replacement is not empty and does not begin with a dot character,
     // a dot character is appended
@@ -2015,7 +2000,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
    operator+=(replacement);
    return *this;
  }
-@@ -332,11 +398,7 @@
+@@ -333,11 +399,7 @@
  
  namespace
  {
@@ -2028,7 +2013,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
  
    inline bool is_dot(const fs::path& path)
    {
-@@ -501,7 +563,7 @@
+@@ -504,7 +566,7 @@
  std::pair<const path::string_type*, std::size_t>
  path::_M_find_extension() const
  {
@@ -2037,7 +2022,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
  
    if (_M_type == _Type::_Filename)
      s = &_M_pathname;
-@@ -516,9 +578,9 @@
+@@ -519,9 +581,9 @@
      {
        if (auto sz = s->size())
  	{
@@ -2049,7 +2034,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
  	  return { s, pos ? pos : string_type::npos };
  	}
      }
-@@ -719,8 +781,8 @@
+@@ -722,8 +784,8 @@
  
    std::string filesystem_error::_M_gen_what()
    {
@@ -2062,8 +2047,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
  _GLIBCXX_END_NAMESPACE_CXX11
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/directory_iterator.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -47,16 +47,17 @@
  
    // Test non-empty directory.
@@ -2121,8 +2106,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/direc
    static_assert( noexcept(begin(it)), "begin is noexcept" );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -60,6 +60,7 @@
    ++iter;
    VERIFY( iter == end(iter) );
@@ -2150,9 +2135,9 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/iterators/recur
    static_assert( noexcept(begin(it)), "begin is noexcept" );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc	2019-02-04 14:09:46.200352287 +0100
-@@ -37,6 +37,22 @@
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/absolute.cc	2019-02-16 15:36:57.105435118 +0100
+@@ -41,6 +41,22 @@
  void
  test02()
  {
@@ -2175,7 +2160,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/abso
    path p1("/");
    VERIFY( absolute(p1) == p1 );
    path p2("/foo");
-@@ -44,6 +60,7 @@
+@@ -48,6 +64,7 @@
    path p3("foo");
    VERIFY( absolute(p3) != p3 );
    VERIFY( absolute(p3) == (std::filesystem::current_path()/p3) );
@@ -2185,8 +2170,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/abso
  int
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/canonical.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -42,7 +42,7 @@
    VERIFY( !ec );
  
@@ -2198,8 +2183,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/cano
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -116,7 +116,7 @@
    auto to = __gnu_test::nonexistent_path();
  
@@ -2220,8 +2205,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy
    VERIFY( fs::exists(to) );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy_file.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -42,7 +42,7 @@
    VERIFY( !exists(to) );
  
@@ -2242,8 +2227,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/copy
    VERIFY( !exists(to) );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exists.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -29,19 +29,20 @@
  test01()
  {
@@ -2271,8 +2256,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/exis
    VERIFY( exists(path{"."}, ec) );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_empty.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -82,7 +82,7 @@
    empty = is_empty(f.path);
    VERIFY( empty );
@@ -2284,8 +2269,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/is_e
    VERIFY( !ec );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last_write_time.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -81,7 +81,7 @@
    ::utimbuf times;
    times.modtime = std::numeric_limits<std::time_t>::max() - 1;
@@ -2297,8 +2282,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/last
  #endif
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/space.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -25,25 +25,35 @@
  #include <testsuite_fs.h>
  #include <testsuite_hooks.h>
@@ -2344,8 +2329,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/spac
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp_directory_path.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -27,10 +27,28 @@
  void
  clean_env()
@@ -2404,8 +2389,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/operations/temp
    VERIFY( ec == std::make_error_code(std::errc::not_a_directory) );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/path.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -55,6 +55,10 @@
  
    compare_paths( append("dir/", "/file"), "/file" );
@@ -2419,8 +2404,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/append/pat
  void
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/locale.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -31,7 +31,11 @@
  test01()
  {
@@ -2435,8 +2420,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/
  void
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/root_directory.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -47,7 +47,12 @@
    {
      path rootdir = p.root_directory();
@@ -2453,8 +2438,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/stem.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -35,7 +35,7 @@
    path p = "foo.bar.baz.tar";
    std::vector<std::string> v;
@@ -2466,8 +2451,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/decompose/
    VERIFY( v.at(2) == ".bar" );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traversal.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -83,6 +83,24 @@
    v2 = { "/", "rootname", "dir", "filename" };
  #endif
@@ -2495,8 +2480,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/itr/traver
  void
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/string.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -27,14 +27,15 @@
  test01()
  {
@@ -2518,8 +2503,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/native/str
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_absolute.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -29,11 +29,17 @@
  void
  test01()
@@ -2567,8 +2552,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/query/is_a
  int
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/iterators/directory_iterator.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -44,15 +44,16 @@
    VERIFY( iter == end(iter) );
  
@@ -2625,8 +2610,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/iterator
    static_assert( noexcept(begin(it)), "begin is noexcept" );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/absolute.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -31,12 +31,29 @@
  test01()
  {
@@ -2667,8 +2652,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
  int
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -114,7 +114,7 @@
    auto to = __gnu_test::nonexistent_path();
  
@@ -2701,8 +2686,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
    VERIFY( !ec );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/copy_file.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -42,7 +42,7 @@
    VERIFY( !exists(to) );
  
@@ -2723,8 +2708,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
    VERIFY( !exists(to) );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/exists.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -28,16 +28,18 @@
  void
  test01()
@@ -2750,8 +2735,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
    VERIFY( !ec );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/is_empty.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -82,7 +82,7 @@
    empty = is_empty(f.path);
    VERIFY( empty );
@@ -2763,8 +2748,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
    VERIFY( !ec );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/last_write_time.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -81,7 +81,7 @@
    ::utimbuf times;
    times.modtime = std::numeric_limits<std::time_t>::max() - 1;
@@ -2776,8 +2761,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
  #endif
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/space.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -30,9 +30,10 @@
  void
  test01()
@@ -2793,8 +2778,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
    s = fs::space(__gnu_test::nonexistent_path(), ec);
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operations/temp_directory_path.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -27,10 +27,28 @@
  void
  clean_env()
@@ -2853,8 +2838,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/operatio
    VERIFY( ec == std::make_error_code(std::errc::not_a_directory) );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/append/path.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -34,16 +34,20 @@
  
    path pp = p;
@@ -2890,8 +2875,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/app
  int
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/concat/path.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -34,18 +34,18 @@
  
    path pp = p;
@@ -2916,8 +2901,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/con
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/root_directory.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -48,8 +48,8 @@
      path rootdir = p.root_directory();
      // If root-directory is composed of 'slash name',
@@ -2931,8 +2916,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/dec
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/decompose/stem.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -35,7 +35,7 @@
    path p = "foo.bar.baz.tar";
    std::vector<std::string> v;
@@ -2944,8 +2929,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/dec
    VERIFY( v.at(2) == ".bar" );
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/native/string.cc	2019-02-16 15:36:57.105435118 +0100
 @@ -27,14 +27,15 @@
  test01()
  {
@@ -2967,8 +2952,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/nat
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/query/is_absolute.cc	2019-02-16 15:36:57.109435235 +0100
 @@ -29,11 +29,17 @@
  void
  test01()
@@ -3016,8 +3001,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/experimental/filesystem/path/que
  int
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/util/testsuite_fs.h
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/util/testsuite_fs.h	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/util/testsuite_fs.h	2019-02-04 14:09:46.200352287 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/util/testsuite_fs.h	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/util/testsuite_fs.h	2019-02-16 15:36:57.109435235 +0100
 @@ -73,6 +73,16 @@
      "a", "a/b", "a/b/", "a/b/c", "a/b/c.d", "a/b/..", "a/b/c.", "a/b/.c"
    };
@@ -3046,8 +3031,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/util/testsuite_fs.h
  
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-04 14:09:46.204352402 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-04 14:25:35.027665466 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-16 15:36:57.109435235 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/path/construct/format.cc	2019-02-16 15:36:57.109435235 +0100
 @@ -30,7 +30,7 @@
  test01()
  {

@@ -24,8 +24,8 @@ Date:   Wed Nov 28 15:27:11 2018 +0000
 
 Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:26:59.450097187 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-04 14:26:59.450097187 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/include/bits/fs_path.h	2019-02-16 15:41:36.677518144 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h	2019-02-16 15:41:36.657517567 +0100
 @@ -43,6 +43,8 @@
  #include <system_error>
  #include <bits/stl_algobase.h>
@@ -91,8 +91,8 @@ Index: gcc-mingw-w64/src/libstdc++-v3/include/bits/fs_path.h
  
 Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
 ===================================================================
---- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:26:59.450097187 +0100
-+++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-04 14:26:59.450097187 +0100
+--- gcc-mingw-w64.orig/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-16 15:41:36.677518144 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc	2019-02-16 15:41:36.673518030 +0100
 @@ -34,8 +34,6 @@
  namespace fs = std::filesystem;
  using fs::path;
@@ -102,7 +102,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
  constexpr path::value_type path::preferred_separator;
  
  #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
-@@ -746,47 +744,83 @@
+@@ -749,47 +747,83 @@
    return seed;
  }
  
@@ -225,7 +225,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/src/filesystem/std-path.cc
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/cons.cc
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/cons.cc	2019-02-04 14:26:59.450097187 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/cons.cc	2019-02-16 15:41:36.673518030 +0100
 @@ -0,0 +1,93 @@
 +// Copyright (C) 2018 Free Software Foundation, Inc.
 +//
@@ -323,7 +323,7 @@ Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_erro
 Index: gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/copy.cc
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/copy.cc	2019-02-04 14:26:59.450097187 +0100
++++ gcc-mingw-w64/src/libstdc++-v3/testsuite/27_io/filesystem/filesystem_error/copy.cc	2019-02-16 15:41:36.673518030 +0100
 @@ -0,0 +1,111 @@
 +// Copyright (C) 2018 Free Software Foundation, Inc.
 +//
