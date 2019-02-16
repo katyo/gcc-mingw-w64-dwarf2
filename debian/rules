@@ -368,7 +368,7 @@ endif
 ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
 	find $(top_dir)/debian -type f -name liblto_plugin.so.\*.\*.\* | xargs strip --remove-section=.comment --remove-section=.note --strip-unneeded
 	for target in $(targets); do \
-		find $(top_dir)/debian -type f -name lib\*.a | grep $$target | xargs -r $$target-strip --strip-unneeded; \
+		find $(top_dir)/debian -path \*/$$target/\* \( \( -path \*/plugin -prune \) -o \( -type f -name lib\*.a -print \) \) | xargs -r $$target-strip --strip-unneeded; \
 	done
 endif
 	dh_lintian -a
