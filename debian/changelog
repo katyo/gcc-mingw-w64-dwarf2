@@ -1,3 +1,10 @@
+gcc-mingw-w64 (21.2) UNRELEASED; urgency=medium
+
+  * Apply upstream dllimport fix for static data members.
+    Closes: #923214.
+
+ -- Stephen Kitt <skitt@debian.org>  Thu, 21 Mar 2019 10:45:08 +0100
+
 gcc-mingw-w64 (21.1) unstable; urgency=medium
 
   * Avoid attempting to strip plugins using the target strip; should fix
