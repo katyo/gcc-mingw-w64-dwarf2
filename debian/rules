@@ -217,9 +217,9 @@ CONFFLAGS += \
 # Enable libatomic
 CONFFLAGS += \
 	--enable-libatomic
-# Enable experimental::filesystem
-#CONFFLAGS += \
-#	--enable-libstdcxx-filesystem-ts=yes
+# Enable experimental::filesystem and std::filesystem
+CONFFLAGS += \
+	--enable-libstdcxx-filesystem-ts=yes
 
 spelling = grep -rl "$(1)" $(upstream_dir) | xargs -r sed -i "s/$(1)/$(2)/g"
 
@@ -249,6 +249,8 @@ mingw-w64-patch-stamp: $(patch_stamp)
 	$(call spelling,wihout,without)
 # Force /bin/sh in mkheaders
 	sed -i sX@SHELL@X/bin/shX $(upstream_dir)/fixincludes/mkheaders.in
+# Re-auto-conf libstdc++ (for the ::filesystem patches)
+	cd src/libstdc++-v3 && rm -f configure && AUTOM4TE=/usr/bin/autom4te2.64 autoconf2.64
 # Fix the date and time of patched files
 	find . -type f -a -newermt '@$(SOURCE_DATE_EPOCH)' -print0 | \
 		xargs -0r touch --no-dereference --date='@$(SOURCE_DATE_EPOCH)'

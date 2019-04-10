@@ -1,0 +1,336 @@
+commit c8fb3443911413cc88f316305fc6b7bf4861ccaa
+Author: redi <redi@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date:   Tue Nov 27 23:25:56 2018 +0000
+
+    PR libstdc++/67843 set shared_ptr lock policy at build-time
+    
+    This resolves a longstanding issue where the lock policy for shared_ptr
+    reference counting depends on compilation options when the header is
+    included, so that different -march options can cause ABI changes. For
+    example, objects compiled with -march=armv7 will use atomics to
+    synchronize reference counts, and objects compiled with -march=armv5t
+    will use a mutex. That means the shared_ptr control block will have a
+    different layout in different objects, causing ODR violations and
+    undefined behaviour. This was the root cause of PR libstdc++/42734 as
+    well as PR libstdc++/67843.
+    
+    The solution is to decide on the lock policy at build time, when
+    libstdc++ is configured. The configure script checks for the
+    availability of the necessary atomic built-ins for the target and fixes
+    that choice permanently. Different -march flags used to compile user
+    code will not cause changes to the lock policy. This results in an ABI
+    change for certain compilations, but only where there was already an ABI
+    incompatibility between the libstdc++.so library and objects built with
+    an incompatible -march option. In general, this means a more stable ABI
+    that isn't silently altered when -march flags make addition atomic ops
+    available.
+    
+    To force a target to use "atomic" or "mutex" the new configure option
+    --with-libstdcxx-lock-policy can be used.
+    
+    In order to turn ODR violations into linker errors, the uses of
+    shared_ptr in filesystem directory iterators have been replaced
+    with __shared_ptr, and explicit instantiations are declared. This
+    ensures that object files using those types cannot link to libstdc++
+    libs unless they use the same lock policy.
+    
+            PR libstdc++/67843
+            * acinclude.m4 (GLIBCXX_ENABLE_LOCK_POLICY): Add new macro
+            that defines _GLIBCXX_HAVE_ATOMIC_LOCK_POLICY.
+            * config.h.in: Regenerate.
+            * configure: Regenerate.
+            * configure.ac: Use GLIBCXX_ENABLE_LOCK_POLICY.
+            * doc/xml/manual/configure.xml: Document new configure option.
+            * include/bits/fs_dir.h (directory_iterator): Use __shared_ptr
+            instead of shared_ptr.
+            (recursive_directory_iterator): Likewise.
+            (__shared_ptr<_Dir>): Add explicit instantiation declaration.
+            (__shared_ptr<recursive_directory_iterator::_Dir_stack>): Likewise.
+            * include/bits/shared_ptr_base.h (__allocate_shared, __make_shared):
+            Add default template argument for _Lock_policy template parameter.
+            * include/ext/concurrence.h (__default_lock_policy): Check macro
+            _GLIBCXX_HAVE_ATOMIC_LOCK_POLICY instead of checking if the current
+            target supports the builtins for compare-and-swap.
+            * src/filesystem/std-dir.cc (__shared_ptr<_Dir>): Add explicit
+            instantiation definition.
+            (__shared_ptr<recursive_directory_iterator::_Dir_stack>): Likewise.
+            (directory_iterator, recursive_directory_iterator): Use __make_shared
+            instead of make_shared.
+    
+    git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@266533 138bc75d-0d04-0410-961f-82ee72b054a4
+
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/acinclude.m4
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/acinclude.m4
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/acinclude.m4
+@@ -3579,6 +3579,72 @@ EOF
+ 
+ ])
+ 
++dnl
++dnl Set default lock policy for synchronizing shared_ptr reference counting.
++dnl
++dnl --with-libstdcxx-lock-policy=auto
++dnl	Use atomic operations for shared_ptr reference counting only if
++dnl	the default target supports atomic compare-and-swap.
++dnl --with-libstdcxx-lock-policy=atomic
++dnl	Use atomic operations for shared_ptr reference counting.
++dnl --with-libstdcxx-lock-policy=mutex
++dnl	Use a mutex to synchronize shared_ptr reference counting.
++dnl
++dnl This controls the value of __gnu_cxx::__default_lock_policy, which
++dnl determines how shared_ptr reference counts are synchronized.
++dnl The option "atomic" means that atomic operations should be used,
++dnl "mutex" means that a mutex will be used. The default option, "auto",
++dnl will check if the target supports the compiler-generated builtins
++dnl for atomic compare-and-swap operations for 2-byte and 4-byte integers,
++dnl and will use "atomic" if supported, "mutex" otherwise.
++dnl This option is ignored if the thread model used by GCC is "single",
++dnl as no synchronization is used at all in that case.
++dnl This option affects the library ABI (except in the "single" thread model).
++dnl
++dnl Defines _GLIBCXX_HAVE_ATOMIC_LOCK_POLICY to 1 if atomics should be used.
++dnl
++AC_DEFUN([GLIBCXX_ENABLE_LOCK_POLICY], [
++
++  AC_ARG_WITH([libstdcxx-lock-policy],
++    AC_HELP_STRING([--with-libstdcxx-lock-policy={atomic,mutex,auto}],
++      [synchronization policy for shared_ptr reference counting [default=auto]]),
++              [libstdcxx_atomic_lock_policy=$withval],
++              [libstdcxx_atomic_lock_policy=auto])
++
++  case "$libstdcxx_atomic_lock_policy" in
++    atomic|mutex|auto) ;;
++    *) AC_MSG_ERROR([Invalid argument for --with-libstdcxx-lock-policy]) ;;
++  esac
++  AC_MSG_CHECKING([for lock policy for shared_ptr reference counts])
++
++  if test x"$libstdcxx_atomic_lock_policy" = x"auto"; then
++    AC_LANG_SAVE
++    AC_LANG_CPLUSPLUS
++    ac_save_CXXFLAGS="$CXXFLAGS"
++
++    dnl Why do we care about 2-byte CAS on targets with 4-byte _Atomic_word?!
++    AC_TRY_COMPILE([
++    #if ! defined __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2
++    # error "No 2-byte compare-and-swap"
++    #elif ! defined __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
++    # error "No 4-byte compare-and-swap"
++    #endif
++    ],,
++    [libstdcxx_atomic_lock_policy=atomic],
++    [libstdcxx_atomic_lock_policy=mutex])
++    AC_LANG_RESTORE
++    CXXFLAGS="$ac_save_CXXFLAGS"
++  fi
++
++  if test x"$libstdcxx_atomic_lock_policy" = x"atomic"; then
++    AC_MSG_RESULT(atomic)
++    AC_DEFINE(HAVE_ATOMIC_LOCK_POLICY,1,
++      [Defined if shared_ptr reference counting should use atomic operations.])
++  else
++    AC_MSG_RESULT(mutex)
++  fi
++
++])
+ 
+ dnl
+ dnl Allow visibility attributes to be used on namespaces, objects, etc.
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/config.h.in
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/config.h.in
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/config.h.in
+@@ -30,6 +30,9 @@
+ /* Define to 1 if you have the `atanl' function. */
+ #undef HAVE_ATANL
+ 
++/* Defined if shared_ptr reference counting should use atomic operations. */
++#undef HAVE_ATOMIC_LOCK_POLICY
++
+ /* Define to 1 if you have the `at_quick_exit' function. */
+ #undef HAVE_AT_QUICK_EXIT
+ 
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/configure
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/configure
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/configure
+@@ -872,6 +872,7 @@ enable_libtool_lock
+ enable_hosted_libstdcxx
+ enable_libstdcxx_verbose
+ enable_libstdcxx_pch
++with_libstdcxx_lock_policy
+ enable_cstdio
+ enable_clocale
+ enable_nls
+@@ -1615,6 +1616,9 @@ Optional Packages:
+   --with-pic              try to use only PIC/non-PIC objects [default=use
+                           both]
+   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
++  --with-libstdcxx-lock-policy={atomic,mutex,auto}
++                          synchronization policy for shared_ptr reference
++                          counting [default=auto]
+   --with-python-dir       the location to install Python modules. This path is
+                           relative starting from the prefix.
+   --with-gnu-ld           assume the C compiler uses GNU ld default=no
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/configure.ac
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/configure.ac
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/configure.ac
+@@ -150,6 +150,7 @@ GLIBCXX_ENABLE_VERBOSE
+ GLIBCXX_ENABLE_PCH($is_hosted)
+ GLIBCXX_ENABLE_THREADS
+ GLIBCXX_ENABLE_ATOMIC_BUILTINS
++GLIBCXX_ENABLE_LOCK_POLICY
+ GLIBCXX_ENABLE_DECIMAL_FLOAT
+ GLIBCXX_ENABLE_INT128_FLOAT128
+ if test "$enable_float128" = yes; then
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/doc/xml/manual/configure.xml
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/doc/xml/manual/configure.xml
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/doc/xml/manual/configure.xml
+@@ -399,6 +399,28 @@
+    </para>
+  </listitem></varlistentry>
+ 
++ <varlistentry><term><code>--with-libstdcxx-lock-policy=OPTION</code></term>
++ <listitem><para>Sets the lock policy that controls how
++        <classname>shared_ptr</classname> reference counting is
++        synchronized.
++        The choice OPTION=atomic enables use of atomics for updates to
++        <classname>shared_ptr</classname> reference counts.
++        The choice OPTION=mutex enables use of a mutex to synchronize updates
++        to <classname>shared_ptr</classname> reference counts.
++        If the compiler's thread model is "single" then this option has no
++        effect, as no synchronization is used for the reference counts.
++	The default is OPTION=auto, which checks for the availability of
++        compiler built-ins for 2-byte and 4-byte atomic compare-and-swap,
++        and uses OPTION=atomic if they're available, OPTION=mutex otherwise.
++        This option can change the library ABI.
++        If the library is configured to use atomics and user programs are
++        compiled using a target that doesn't natively support the atomic
++        operations (e.g. the library is configured for armv7 and then code
++        is compiled with <option>-march=armv5t</option>) then the program
++        might rely on support in libgcc to provide the atomics.
++    </para>
++ </listitem></varlistentry>
++
+  <varlistentry><term><code>--enable-vtable-verify</code>[default]</term>
+  <listitem>
+     <para>Use <code>-fvtable-verify=std</code> to compile the C++
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/include/bits/fs_dir.h
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/include/bits/fs_dir.h
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/include/bits/fs_dir.h
+@@ -403,7 +403,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+ 
+     friend class recursive_directory_iterator;
+ 
+-    std::shared_ptr<_Dir> _M_dir;
++    std::__shared_ptr<_Dir> _M_dir;
+   };
+ 
+   inline directory_iterator
+@@ -494,7 +494,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
+                const recursive_directory_iterator& __rhs);
+ 
+     struct _Dir_stack;
+-    std::shared_ptr<_Dir_stack> _M_dirs;
++    std::__shared_ptr<_Dir_stack> _M_dirs;
+     directory_options _M_options = {};
+     bool _M_pending = false;
+   };
+@@ -525,6 +525,14 @@ _GLIBCXX_END_NAMESPACE_CXX11
+   // @} group filesystem
+ } // namespace filesystem
+ 
++  // Use explicit instantiations of these types. Any inconsistency in the
++  // value of __default_lock_policy between code including this header and
++  // the library will cause a linker error.
++  extern template class
++    __shared_ptr<filesystem::_Dir>;
++  extern template class
++    __shared_ptr<filesystem::recursive_directory_iterator::_Dir_stack>;
++
+ _GLIBCXX_END_NAMESPACE_VERSION
+ } // namespace std
+ 
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/include/bits/shared_ptr_base.h
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/include/bits/shared_ptr_base.h
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/include/bits/shared_ptr_base.h
+@@ -1831,7 +1831,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+       mutable __weak_ptr<_Tp, _Lp>  _M_weak_this;
+     };
+ 
+-  template<typename _Tp, _Lock_policy _Lp, typename _Alloc, typename... _Args>
++  template<typename _Tp, _Lock_policy _Lp = __default_lock_policy,
++	   typename _Alloc, typename... _Args>
+     inline __shared_ptr<_Tp, _Lp>
+     __allocate_shared(const _Alloc& __a, _Args&&... __args)
+     {
+@@ -1839,7 +1840,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ 				    std::forward<_Args>(__args)...);
+     }
+ 
+-  template<typename _Tp, _Lock_policy _Lp, typename... _Args>
++  template<typename _Tp, _Lock_policy _Lp = __default_lock_policy,
++	   typename... _Args>
+     inline __shared_ptr<_Tp, _Lp>
+     __make_shared(_Args&&... __args)
+     {
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/include/ext/concurrence.h
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/include/ext/concurrence.h
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/include/ext/concurrence.h
+@@ -51,16 +51,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+   // Compile time constant that indicates prefered locking policy in
+   // the current configuration.
+   static const _Lock_policy __default_lock_policy = 
+-#ifdef __GTHREADS
+-#if (defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_2) \
+-     && defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4))
++#ifndef __GTHREADS
++  _S_single;
++#elif defined _GLIBCXX_HAVE_ATOMIC_LOCK_POLICY
+   _S_atomic;
+ #else
+   _S_mutex;
+ #endif
+-#else
+-  _S_single;
+-#endif
+ 
+   // NB: As this is used in libsupc++, need to only depend on
+   // exception. No stdexception classes, no use of std::string.
+Index: gcc-mingw-w64-21.2/src/libstdc++-v3/src/filesystem/std-dir.cc
+===================================================================
+--- gcc-mingw-w64-21.2.orig/src/libstdc++-v3/src/filesystem/std-dir.cc
++++ gcc-mingw-w64-21.2/src/libstdc++-v3/src/filesystem/std-dir.cc
+@@ -39,6 +39,9 @@
+ namespace fs = std::filesystem;
+ namespace posix = std::filesystem::__gnu_posix;
+ 
++template class std::__shared_ptr<fs::_Dir>;
++template class std::__shared_ptr<fs::recursive_directory_iterator::_Dir_stack>;
++
+ struct fs::_Dir : _Dir_base
+ {
+   _Dir(const fs::path& p, bool skip_permission_denied, error_code& ec)
+@@ -125,7 +128,7 @@ directory_iterator(const path& p, direct
+ 
+   if (dir.dirp)
+     {
+-      auto sp = std::make_shared<fs::_Dir>(std::move(dir));
++      auto sp = std::__make_shared<fs::_Dir>(std::move(dir));
+       if (sp->advance(skip_permission_denied, ec))
+ 	_M_dir.swap(sp);
+     }
+@@ -185,7 +188,7 @@ recursive_directory_iterator(const path&
+     {
+       if (ecptr)
+ 	ecptr->clear();
+-      auto sp = std::make_shared<_Dir_stack>();
++      auto sp = std::__make_shared<_Dir_stack>();
+       sp->push(_Dir{ dirp, p });
+       if (ecptr ? sp->top().advance(*ecptr) : sp->top().advance())
+ 	_M_dirs.swap(sp);
