@@ -1,11 +1,11 @@
-gcc-mingw-w64 (21.2) UNRELEASED; urgency=medium
+gcc-mingw-w64 (21.2) unstable; urgency=medium
 
   * Apply upstream dllimport fix for static data members.
     Closes: #923214.
   * Explicitly enable std::filesystem, with the appropriate upstream
     patch. Closes: #925172.
 
- -- Stephen Kitt <skitt@debian.org>  Thu, 21 Mar 2019 10:45:08 +0100
+ -- Stephen Kitt <skitt@debian.org>  Sat, 13 Apr 2019 17:06:11 +0200
 
 gcc-mingw-w64 (21.1) unstable; urgency=medium
 
