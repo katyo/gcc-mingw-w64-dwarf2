@@ -202,8 +202,7 @@ CONFFLAGS += \
 	--enable-languages=$(languages)
 # LTO
 CONFFLAGS += \
-	--enable-lto \
-	--with-plugin-ld
+	--enable-lto
 # Thread-model-dependent
 CONFFLAGS += \
 	--enable-threads=$$threads \

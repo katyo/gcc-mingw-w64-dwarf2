@@ -1,3 +1,10 @@
+gcc-mingw-w64 (21.3) UNRELEASED; urgency=medium
+
+  * Configure LTO support correctly; thanks Alexey Izbyshev!
+    Closes: #928214.
+
+ -- Stephen Kitt <skitt@debian.org>  Tue, 30 Apr 2019 09:42:37 +0200
+
 gcc-mingw-w64 (21.2) unstable; urgency=medium
 
   * Apply upstream dllimport fix for static data members.
