@@ -1,9 +1,9 @@
-gcc-mingw-w64 (21.3) UNRELEASED; urgency=medium
+gcc-mingw-w64 (21.3) unstable; urgency=medium
 
   * Configure LTO support correctly; thanks Alexey Izbyshev!
     Closes: #928214.
 
- -- Stephen Kitt <skitt@debian.org>  Tue, 30 Apr 2019 09:42:37 +0200
+ -- Stephen Kitt <skitt@debian.org>  Tue, 18 Jun 2019 08:59:34 +0200
 
 gcc-mingw-w64 (21.2) unstable; urgency=medium
 
