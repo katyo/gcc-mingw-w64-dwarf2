@@ -1,8 +1,8 @@
-gcc-mingw-w64 (21.4) UNRELEASED; urgency=medium
+gcc-mingw-w64 (21.4) unstable; urgency=medium
 
   * Drop our patch for 88568 since it’s been merged in gcc-8-source.
 
- -- Stephen Kitt <skitt@debian.org>  Wed, 10 Jul 2019 09:25:53 +0200
+ -- Stephen Kitt <skitt@debian.org>  Wed, 10 Jul 2019 13:16:39 +0200
 
 gcc-mingw-w64 (21.3) unstable; urgency=medium
 
