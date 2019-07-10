@@ -7,4 +7,3 @@ hide-path-iostream-operators.patch
 set-shared_ptr-lock-policy-at-build-time.patch
 filesystem_error-no-throw-copyable.patch
 overload-distance-and-advance.patch
-gcc9-pr88568-2.patch
