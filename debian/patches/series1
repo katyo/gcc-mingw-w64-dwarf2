@@ -1,3 +1,2 @@
 disable-multilib.patch
 reproducible-sort.patch
-bug-55930.patch

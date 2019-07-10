@@ -219,6 +219,10 @@ CONFFLAGS += \
 # Enable experimental::filesystem and std::filesystem
 CONFFLAGS += \
 	--enable-libstdcxx-filesystem-ts=yes
+# Enable dependency tracking (disabled by dh; see
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=55930 for details)
+CONFFLAGS += \
+	--enable-dependency-tracking
 
 spelling = grep -rl "$(1)" $(upstream_dir) | xargs -r sed -i "s/$(1)/$(2)/g"
 
