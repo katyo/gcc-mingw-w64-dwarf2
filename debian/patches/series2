@@ -7,3 +7,4 @@ hide-path-iostream-operators.patch
 set-shared_ptr-lock-policy-at-build-time.patch
 filesystem_error-no-throw-copyable.patch
 overload-distance-and-advance.patch
+vmov-alignment.patch

@@ -1,3 +1,10 @@
+gcc-mingw-w64 (21.5) UNRELEASED; urgency=medium
+
+  * Use unaligned VMOV instructions to avoid crashes caused by mis-aligned
+    values; thanks to Claude Heiland-Allen for the patch! Closes: #939559.
+
+ -- Stephen Kitt <skitt@debian.org>  Tue, 10 Sep 2019 23:08:23 +0200
+
 gcc-mingw-w64 (21.4) unstable; urgency=medium
 
   * Drop our patch for 88568 since it’s been merged in gcc-8-source.
