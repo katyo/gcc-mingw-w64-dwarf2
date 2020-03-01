@@ -216,6 +216,10 @@ CONFFLAGS += \
 # Enable libatomic
 CONFFLAGS += \
 	--enable-libatomic
+# Use Dwarf2 exceptions instead of sjlj
+CONFFLAGS += \
+	--disable-sjlj-exceptions \
+	--with-dwarf2
 # Enable experimental::filesystem and std::filesystem
 CONFFLAGS += \
 	--enable-libstdcxx-filesystem-ts=yes
